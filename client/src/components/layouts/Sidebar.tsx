@@ -1,15 +1,15 @@
 import type { FC } from "react";
 import {
-  LayoutDashboard,
   KeyRound,
-  Upload,
-  Webhook,
-  BarChart3,
   Settings,
   Images,
+  User,
+  Image,
+  PlayCircle,
+  SquareActivity,
 } from "lucide-react";
 import clsx from "clsx";
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 type NavItem = {
   label: string;
@@ -19,29 +19,29 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   {
-    label: "Overview",
-    icon: LayoutDashboard,
-    to: "/dashboard",
-  },
-  {
     label: "API Keys",
     icon: KeyRound,
-    to: "/api-keys",
+    to: "/apis",
   },
   {
-    label: "Uploads",
-    icon: Upload,
-    to: "/uploads",
+    label: "Images",
+    icon: Image,
+    to: "/images",
   },
   {
-    label: "Webhooks",
-    icon: Webhook,
-    to: "/webhooks",
+    label: "Playground",
+    icon: PlayCircle,
+    to: "/playground",
   },
   {
-    label: "Usage",
-    icon: BarChart3,
-    to: "/usage",
+    label: "System Health",
+    icon: SquareActivity,
+    to: "/system-health",
+  },
+  {
+    label: "Profile",
+    icon: User,
+    to: "/profile",
   },
 ];
 
