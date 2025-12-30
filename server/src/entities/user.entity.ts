@@ -27,7 +27,7 @@ export class User {
   @Prop({ type: String, unique: true, sparse: true })
   authId: string;
 
-  @Prop({ type: String, enum: ['free', 'pro'] })
+  @Prop({ type: String, enum: ['free', 'pro'], default: 'free' })
   plan: string;
 
   @Prop({ type: Number, default: STORAGE })
