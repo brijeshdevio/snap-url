@@ -13,6 +13,13 @@ import { User } from '@/entities/user.entity';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 
+type ProviderData = {
+  authProvider: 'github' | 'google';
+  authId: string;
+  email: string;
+  name: string;
+};
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -87,6 +94,33 @@ export class AuthService {
     user.refreshToken = refreshToken;
 
     await user.save();
+    const expiresIn = 3600;
+    return { accessToken, refreshToken, expiresIn };
+  }
+
+  async findOrCreateUser(data: ProviderData) {
+    const user = await this.userModel.findOne({
+      authProvider: data.authProvider,
+      authId: data.authId,
+    });
+
+    if (user) {
+      const refreshToken = this.generateRefreshToken();
+      const accessToken = await this.generateToken({ id: String(user._id) });
+      user.refreshToken = refreshToken;
+
+      await user.save();
+      const expiresIn = 3600;
+      return { accessToken, refreshToken, expiresIn };
+    }
+
+    const newUser = await this.userModel.create(data);
+
+    const refreshToken = this.generateRefreshToken();
+    const accessToken = await this.generateToken({ id: String(newUser._id) });
+    newUser.refreshToken = refreshToken;
+
+    await newUser.save();
     const expiresIn = 3600;
     return { accessToken, refreshToken, expiresIn };
   }

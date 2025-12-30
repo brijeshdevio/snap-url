@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Post,
   Req,
   Res,
@@ -8,6 +9,7 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import type { Response, Request } from 'express';
+import { AuthGuard as PassportAuthGuard } from '@nestjs/passport';
 import { ZodValidationPipe } from '@/common/pipes/zod-validation.pipe';
 import { ApiResponse } from '@/utils/api-response';
 import { SignupSchema } from './dto/signup.dto';
@@ -79,5 +81,29 @@ export class AuthController {
       maxAge: 24 * 60 * 60 * 1000,
     });
     return ApiResponse(200, { rest, message: 'Refresh successful' })(res);
+  }
+
+  @Get('github')
+  @UseGuards(PassportAuthGuard('github'))
+  handleGithubAuth() {}
+
+  @Get('github/callback')
+  @UseGuards(PassportAuthGuard('github'))
+  async handleGithubCallback(@Req() req, @Res() res: Response) {
+    const rest = await this.authService.findOrCreateUser(req.user);
+    res.cookie('accessToken', rest.accessToken, {
+      httpOnly: true,
+      sameSite: 'none',
+      secure: true,
+      maxAge: 60 * 60 * 1000,
+    });
+    res.cookie('refreshToken', rest.refreshToken, {
+      httpOnly: true,
+      sameSite: 'none',
+      secure: true,
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+    res.redirect('/api/users/me');
   }
 }
