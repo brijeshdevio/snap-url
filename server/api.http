@@ -1,2 +1,32 @@
-### GET - /
-GET http://localhost:3000/
+### GET - /api
+GET http://localhost:4000/api
+
+
+### POST - /api/auth/signup
+POST http://localhost:4000/api/auth/signup
+Content-Type: application/json
+
+{
+  "name": "Brijesh",
+  "email":"brijesh@duck.com",
+  "password": "12345678"
+}
+
+
+### POST - /api/auth/login
+POST http://localhost:4000/api/auth/login
+Content-Type: application/json
+
+{
+  "email":"brijesh@duck.com",
+  "password": "12345678"
+}
+
+
+### POST - /api/auth/logout
+POST http://localhost:4000/api/auth/logout
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NTM4MDJkNzI4OTU2ZjIwZmRlNGQwYiIsImlhdCI6MTc2NzA4MDg0MiwiZXhwIjoxNzY3MDg0NDQyfQ.5wzLWY7IwU1tqvj8Qr5bFHtKq8BR9LMJGG8fnu16w1Q
+
+
+### POST - /api/auth/refresh
+POST http://localhost:4000/api/auth/refresh
