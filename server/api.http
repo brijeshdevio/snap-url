@@ -55,3 +55,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NTM5ODY4M
 ### PATCH - /api/apikeys/:ID/disable
 PATCH http://localhost:4000/api/apikeys/6953a875d3185b17fb84b8af/disable
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NTM5ODY4MDQ5OTMxZGViZDExMDZlZSIsImlhdCI6MTc2NzE2MjU4MSwiZXhwIjoxNzY3MTY2MTgxfQ.1E1PSXsT7mOXWWanCFyXtUzLV70RM-PE0PyJpb1VfUQ
+
+
+### PATCH - /api/apikeys/:ID/enable
+PATCH http://localhost:4000/api/apikeys/6953a875d3185b17fb84b8af/enable
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NTM5ODY4MDQ5OTMxZGViZDExMDZlZSIsImlhdCI6MTc2NzE2MjU4MSwiZXhwIjoxNzY3MTY2MTgxfQ.1E1PSXsT7mOXWWanCFyXtUzLV70RM-PE0PyJpb1VfUQ

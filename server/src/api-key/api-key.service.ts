@@ -74,4 +74,16 @@ export class ApiKeyService {
       throw new BadRequestException(`Api key with id ${apiKeyId} not found`);
     }
   }
+
+  async enable(user: string, apiKeyId: string): Promise<void> {
+    this.isValidId(apiKeyId);
+
+    const enabled = await this.apiKeyModel.findOneAndUpdate(
+      { user, _id: apiKeyId },
+      { isActive: true },
+    );
+    if (!enabled) {
+      throw new BadRequestException(`Api key with id ${apiKeyId} not found`);
+    }
+  }
 }

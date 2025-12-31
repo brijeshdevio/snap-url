@@ -53,4 +53,14 @@ export class ApiKeyController {
     await this.apiKeyService.disable(req.user.id, id);
     return ApiResponse(200, { message: 'Api key disabled successfully' })(res);
   }
+
+  @Patch(':id/enable')
+  async handleEnable(
+    @Req() req: { user: { id: string } },
+    @Param('id') id: string,
+    @Res() res: Response,
+  ): Promise<Response> {
+    await this.apiKeyService.enable(req.user.id, id);
+    return ApiResponse(200, { message: 'Api key enabled successfully' })(res);
+  }
 }
