@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 
-export type UserDocument = HydratedDocument<ApiKey>;
+export type ApiKeyDocument = HydratedDocument<ApiKey>;
 
 @Schema({ timestamps: true })
 export class ApiKey {
