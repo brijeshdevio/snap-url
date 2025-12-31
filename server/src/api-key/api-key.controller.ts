@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -62,5 +63,15 @@ export class ApiKeyController {
   ): Promise<Response> {
     await this.apiKeyService.enable(req.user.id, id);
     return ApiResponse(200, { message: 'Api key enabled successfully' })(res);
+  }
+
+  @Delete(':id')
+  async handleRevoke(
+    @Req() req: { user: { id: string } },
+    @Param('id') id: string,
+    @Res() res: Response,
+  ): Promise<Response> {
+    await this.apiKeyService.revoke(req.user.id, id);
+    return ApiResponse(200, { message: 'Api key revoked successfully' })(res);
   }
 }

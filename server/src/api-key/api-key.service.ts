@@ -86,4 +86,16 @@ export class ApiKeyService {
       throw new BadRequestException(`Api key with id ${apiKeyId} not found`);
     }
   }
+
+  async revoke(user: string, apiKeyId: string): Promise<void> {
+    this.isValidId(apiKeyId);
+
+    const revoked = await this.apiKeyModel.findOneAndUpdate(
+      { user, _id: apiKeyId },
+      { revokedAt: new Date(), isActive: false },
+    );
+    if (!revoked) {
+      throw new BadRequestException(`Api key with id ${apiKeyId} not found`);
+    }
+  }
 }
