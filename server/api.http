@@ -35,3 +35,13 @@ POST http://localhost:4000/api/auth/refresh
 ### GET - /api/users/me
 GET http://localhost:4000/api/users/me
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NTM4YjkwNDYxMWYyNmQ2YWI2NTYyYSIsImlhdCI6MTc2NzA4MjkwMSwiZXhwIjoxNzY3MDg2NTAxfQ.y8jf11K60rCos6KZrBO9WIUushf4NCpF8ggU2KJIl4E
+
+
+### POST - /api/apikeys
+POST http://localhost:4000/api/apikeys
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NTM5ODY4MDQ5OTMxZGViZDExMDZlZSIsImlhdCI6MTc2NzA4OTg1MywiZXhwIjoxNzY3MDkzNDUzfQ.xDCXr26upyPqiwEAX4-Au7KPbnd8A0XWZvibBwhYZ8k
+Content-Type: application/json
+
+{
+  "name": "QuickTalk"
+}
