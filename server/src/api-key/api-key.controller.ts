@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Post,
   Req,
   Res,
@@ -30,5 +31,14 @@ export class ApiKeyController {
     return ApiResponse(201, { data, message: 'Api key created successfully' })(
       res,
     );
+  }
+
+  @Get()
+  async handleGetAll(
+    @Req() req: { user: { id: string } },
+    @Res() res: Response,
+  ): Promise<Response> {
+    const data = await this.apiKeyService.getAll(req.user.id);
+    return ApiResponse(200, { data })(res);
   }
 }

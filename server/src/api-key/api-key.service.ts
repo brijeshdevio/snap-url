@@ -43,4 +43,14 @@ export class ApiKeyService {
       keyHash,
     };
   }
+
+  async getAll(user: string): Promise<ApiKey[]> {
+    const apiKeys = await this.apiKeyModel
+      .find({ user })
+      .sort({ createdAt: -1 })
+      .select('name isActive lastUsedAt revokedAt')
+      .lean();
+
+    return apiKeys;
+  }
 }

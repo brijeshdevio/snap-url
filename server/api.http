@@ -45,3 +45,8 @@ Content-Type: application/json
 {
   "name": "QuickTalk"
 }
+
+
+### GET - /api/apikeys
+GET http://localhost:4000/api/apikeys
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NTM5ODY4MDQ5OTMxZGViZDExMDZlZSIsImlhdCI6MTc2NzE2MjU4MSwiZXhwIjoxNzY3MTY2MTgxfQ.1E1PSXsT7mOXWWanCFyXtUzLV70RM-PE0PyJpb1VfUQ
