@@ -65,3 +65,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NTM5ODY4M
 ### DELETE - /api/apikeys/:ID
 DELETE http://localhost:4000/api/apikeys/6953a875d3185b17fb84b8af
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NTM5ODY4MDQ5OTMxZGViZDExMDZlZSIsImlhdCI6MTc2NzE2MjU4MSwiZXhwIjoxNzY3MTY2MTgxfQ.1E1PSXsT7mOXWWanCFyXtUzLV70RM-PE0PyJpb1VfUQ
+
+
+### POST - /api/uploads/:ID/sign
+POST http://localhost:4000/api/uploads/6953a7fd9645a38e4e4320e6/sign
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NTM5ODY4MDQ5OTMxZGViZDExMDZlZSIsImlhdCI6MTc2NzE2Njc0MywiZXhwIjoxNzY3MTcwMzQzfQ.7Byh_AcM7-0-tRh99fco8Ac_PMy129BM6VBQ7zprjx8
+Content-Type: application/json
+
+{
+ "purpose": "avatar"
+}
