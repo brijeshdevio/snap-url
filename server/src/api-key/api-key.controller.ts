@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  Param,
+  Patch,
   Post,
   Req,
   Res,
@@ -40,5 +42,15 @@ export class ApiKeyController {
   ): Promise<Response> {
     const data = await this.apiKeyService.getAll(req.user.id);
     return ApiResponse(200, { data })(res);
+  }
+
+  @Patch(':id/disable')
+  async handleDisable(
+    @Req() req: { user: { id: string } },
+    @Param('id') id: string,
+    @Res() res: Response,
+  ): Promise<Response> {
+    await this.apiKeyService.disable(req.user.id, id);
+    return ApiResponse(200, { message: 'Api key disabled successfully' })(res);
   }
 }

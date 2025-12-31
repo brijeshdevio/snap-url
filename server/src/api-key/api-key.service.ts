@@ -1,7 +1,11 @@
 import crypto from 'node:crypto';
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { isValidObjectId, Model } from 'mongoose';
 import { ApiKey } from '@/entities/api-key.entity';
 import { CreateApiKeyDto } from './dto/create-api-key.dto';
 
@@ -19,6 +23,11 @@ export class ApiKeyService {
       return this.generateApiKey();
     }
     return keyHash;
+  }
+
+  private isValidId(id: string) {
+    if (isValidObjectId(id)) return true;
+    throw new BadRequestException(`Invalid api key id ${id}`);
   }
 
   async create(
@@ -52,5 +61,17 @@ export class ApiKeyService {
       .lean();
 
     return apiKeys;
+  }
+
+  async disable(user: string, apiKeyId: string): Promise<void> {
+    this.isValidId(apiKeyId);
+
+    const disabled = await this.apiKeyModel.findOneAndUpdate(
+      { user, _id: apiKeyId },
+      { isActive: false },
+    );
+    if (!disabled) {
+      throw new BadRequestException(`Api key with id ${apiKeyId} not found`);
+    }
   }
 }
