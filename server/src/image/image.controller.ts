@@ -5,11 +5,15 @@ import {
   Header,
   Logger,
   Param,
+  Req,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { ImageService } from './image.service';
 import axios, { AxiosError } from 'axios';
 import type { Response } from 'express';
+import { AuthGuard } from '@/common/guard/auth.guard';
+import { ApiResponse } from '@/utils/api-response';
 
 const CACHE_MAX_AGE = 31536000; // 1 year in seconds
 const IMAGE_PROXY_TIMEOUT = 10000; // 10 seconds timeout for image fetching
@@ -18,6 +22,17 @@ const IMAGE_PROXY_TIMEOUT = 10000; // 10 seconds timeout for image fetching
 export class ImageController {
   private readonly logger = new Logger(ImageController.name);
   constructor(private readonly imageService: ImageService) {}
+
+  @UseGuards(AuthGuard)
+  @Get()
+  async handleGetAll(
+    @Req() req: { user: { id: string } },
+    @Res() res: Response,
+  ): Promise<Response> {
+    const user = req.user.id;
+    const images = await this.imageService.getAll(user);
+    return ApiResponse(200, { data: images })(res);
+  }
 
   @Get(':dName')
   @Header('Cache-Control', `public, max-age=${CACHE_MAX_AGE}`)

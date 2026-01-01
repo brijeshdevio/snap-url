@@ -48,4 +48,14 @@ export class ImageService {
 
     throw new NotFoundException('Image not found');
   }
+
+  async getAll(user: string): Promise<Image[]> {
+    const images = await this.imageModel
+      .find({ user })
+      .sort({ createdAt: -1 })
+      .select('imageTokenHash displayName purpose size createdAt')
+      .lean()
+      .lean();
+    return images;
+  }
 }
