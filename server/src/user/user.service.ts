@@ -20,4 +20,34 @@ export class UserService {
 
     throw new UnauthorizedException('You are not authorized');
   }
+
+  async checkAndAddStorageSize(userId: string, size: number): Promise<void> {
+    const user = await this.userModel.findById(userId).lean();
+
+    if (!user) {
+      throw new UnauthorizedException('You are not authorized.');
+    }
+
+    if (user && user.storageUsed + size > user.storage) {
+      throw new UnauthorizedException('You have reached your storage limit.');
+    }
+
+    await this.addStorageSize(userId, size);
+  }
+
+  async addStorageSize(userId: string, size: number): Promise<void> {
+    await this.userModel.findOneAndUpdate(
+      { _id: userId },
+      { $inc: { usedQuota: size } },
+    );
+  }
+
+  async reduceStorageSize(userId: string, size: number): Promise<void> {
+    if (size <= 0) return;
+
+    await this.userModel.findOneAndUpdate(
+      { _id: userId },
+      { $inc: { usedQuota: -size } },
+    );
+  }
 }

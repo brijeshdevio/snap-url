@@ -75,3 +75,8 @@ Content-Type: application/json
 {
  "purpose": "avatar"
 }
+
+
+### POST - /api/uploads
+POST http://localhost:4000/api/uploads
+X-Upload-Token: upl_live_82d347d6d167c55dbf43429026b9b32366119948af51c1171ef343f0547ed129

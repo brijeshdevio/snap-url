@@ -7,9 +7,10 @@ import { AuthModule } from '@/auth/auth.module';
 import { UserModule } from './user/user.module';
 import { ApiKeyModule } from './api-key/api-key.module';
 import { UploadTokenModule } from './upload-token/upload-token.module';
+import { ImageModule } from './image/image.module';
 
 @Module({
-  imports: [MongooseModule.forRoot(envConfig.MONGODB_URL), AuthModule, UserModule, ApiKeyModule, UploadTokenModule],
+  imports: [MongooseModule.forRoot(envConfig.MONGODB_URL), AuthModule, UserModule, ApiKeyModule, UploadTokenModule, ImageModule],
   controllers: [AppController],
   providers: [AppService],
 })

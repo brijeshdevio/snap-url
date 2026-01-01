@@ -1,5 +1,9 @@
 import crypto from 'node:crypto';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model } from 'mongoose';
 import { UploadToken } from '@/entities/upload-token.entity';
@@ -46,5 +50,17 @@ export class UploadTokenService {
       token: tokenHash,
       expiresAt: uploadToken.expiresAt,
     };
+  }
+
+  async verifyToken(tokenHash: string): Promise<UploadToken> {
+    const token = await this.uploadTokenModel
+      .findOne({ tokenHash, isActive: true })
+      .select('user apiKey purpose')
+      .lean();
+    if (!token) {
+      throw new UnauthorizedException(`Invalid Upload Token ${tokenHash}`);
+    }
+
+    return token;
   }
 }

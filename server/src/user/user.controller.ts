@@ -1,6 +1,6 @@
 import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import type { Response } from 'express';
-import { AuthGuard } from '@/common/guard/auth-guard';
+import { AuthGuard } from '@/common/guard/auth.guard';
 import { ApiResponse } from '@/utils/api-response';
 import { UserService } from './user.service';
 

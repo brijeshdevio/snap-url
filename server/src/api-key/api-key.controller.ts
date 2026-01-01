@@ -16,7 +16,7 @@ import { ApiKeyService } from './api-key.service';
 import { ZodValidationPipe } from '@/common/pipes/zod-validation.pipe';
 import { CreateApiKeySchema } from './dto/create-api-key.dto';
 import { ApiResponse } from '@/utils/api-response';
-import { AuthGuard } from '@/common/guard/auth-guard';
+import { AuthGuard } from '@/common/guard/auth.guard';
 
 @UseGuards(AuthGuard)
 @Controller('apikeys')

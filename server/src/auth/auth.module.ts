@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { envConfig } from '@/config/env.config';
 import { GithubStrategy } from './github.strategy';
 import { PassportModule } from '@nestjs/passport';
+import { CommonModule } from '@/common/common.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { PassportModule } from '@nestjs/passport';
       signOptions: { expiresIn: envConfig.JWT_EXPIRES_IN },
     }),
     PassportModule,
+    CommonModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, GithubStrategy],

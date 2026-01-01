@@ -15,7 +15,7 @@ import { ApiResponse } from '@/utils/api-response';
 import { SignupSchema } from './dto/signup.dto';
 import { AuthService } from './auth.service';
 import { LoginSchema } from './dto/login.dto';
-import { AuthGuard } from '@/common/guard/auth-guard';
+import { AuthGuard } from '@/common/guard/auth.guard';
 
 @Controller('auth')
 export class AuthController {
