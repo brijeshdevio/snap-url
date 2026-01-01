@@ -17,7 +17,8 @@ export class ApiKeyService {
 
   private async generateApiKey(): Promise<string> {
     const token = crypto.randomBytes(64).toString('hex');
-    const keyHash = crypto.createHash('sha256').update(token).digest('hex');
+    const keyHash =
+      'api_live_' + crypto.createHash('sha256').update(token).digest('hex');
     const conflictApiKey = await this.apiKeyModel.findOne({ keyHash });
     if (conflictApiKey) {
       return this.generateApiKey();
