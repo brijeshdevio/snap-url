@@ -19,7 +19,7 @@ function LinkItem({ to, label }: LinkItemProps) {
 
 export function Navbar() {
   return (
-    <nav className="fixed top-0 left-0 w-full p-3 bg-base-100 border-b border-secondary/10">
+    <nav className="fixed top-0 left-0 z-50 w-full p-3 bg-base-100 border-b border-secondary/10">
       <div className="w-full sm:w-[90%] flex items-center justify-between mx-auto">
         <Link
           to="/"
