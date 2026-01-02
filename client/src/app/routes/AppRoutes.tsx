@@ -1,7 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { BaseLayout } from "../layouts/BaseLayout";
 import { AuthLayout } from "../layouts/AuthLayout";
-import { Home, Signup } from "@/pages";
+import { Home, Login, Signup } from "@/pages";
 
 export function AppRoutes() {
   return (
@@ -12,6 +12,7 @@ export function AppRoutes() {
         </Route>
         <Route element={<AuthLayout />}>
           <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<Login />} />
         </Route>
       </Routes>
     </BrowserRouter>
