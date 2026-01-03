@@ -12,23 +12,30 @@ import {
   Signup,
   SystemHealthPage,
 } from "@/pages";
+import ProtectRoute from "./ProtectRoute";
+import AuthRoute from "./AuthRoute";
 
 export function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<BaseLayout />}></Route>
-        <Route element={<ProtectLayout />}>
+        <Route element={<BaseLayout />}>
           <Route index element={<Home />} />
-          <Route path="/keys" element={<ApiKeyPage />} />
-          <Route path="/images" element={<ImagePage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/playground" element={<PlaygroundPage />} />
-          <Route path="/system-health" element={<SystemHealthPage />} />
+        </Route>
+        <Route element={<ProtectLayout />}>
+          <Route element={<ProtectRoute />}>
+            <Route path="/keys" element={<ApiKeyPage />} />
+            <Route path="/images" element={<ImagePage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/playground" element={<PlaygroundPage />} />
+            <Route path="/system-health" element={<SystemHealthPage />} />
+          </Route>
         </Route>
         <Route element={<AuthLayout />}>
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/login" element={<Login />} />
+          <Route element={<AuthRoute />}>
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/login" element={<Login />} />
+          </Route>
         </Route>
       </Routes>
     </BrowserRouter>
