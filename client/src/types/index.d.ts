@@ -9,3 +9,13 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   loading: boolean;
 }
+
+// ======== MODAL ============
+export type ModalsType = {
+  NewKeyModal: boolean;
+};
+
+export type ModalContextType = {
+  modals: ModalsType;
+  modal: (key: keyof ModalsType, value: boolean) => void;
+};

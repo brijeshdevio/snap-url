@@ -14,10 +14,12 @@ import {
 } from "@/pages";
 import ProtectRoute from "./ProtectRoute";
 import AuthRoute from "./AuthRoute";
+import { ModalRoot } from "@/components";
 
 export function AppRoutes() {
   return (
     <BrowserRouter>
+      <ModalRoot />
       <Routes>
         <Route element={<BaseLayout />}>
           <Route index element={<Home />} />

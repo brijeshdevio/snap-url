@@ -3,13 +3,16 @@ import { Toaster } from "sonner";
 import { AuthProvider } from "./providers/AuthProvider";
 import { AppRoutes } from "./routes/AppRoutes";
 import "@/App.css";
+import { ModalProvider } from "./providers/modal-provider";
 
 function App() {
   return (
     <>
       <QueryClientProvider client={new QueryClient()}>
         <AuthProvider>
-          <AppRoutes />
+          <ModalProvider>
+            <AppRoutes />
+          </ModalProvider>
         </AuthProvider>
       </QueryClientProvider>
       <Toaster />

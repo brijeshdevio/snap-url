@@ -21,7 +21,11 @@ export function InputField({ label, errors, ...props }: InputFieldProps) {
 
   return (
     <div className="flex flex-col gap-1">
-      {label && <label htmlFor={id}>{label}</label>}
+      {label && (
+        <label htmlFor={id} className="text-accent-content">
+          {label}
+        </label>
+      )}
       <div className="input w-full">
         <input
           {...props}
