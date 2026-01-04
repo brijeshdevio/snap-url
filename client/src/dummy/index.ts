@@ -1,7 +1,7 @@
 export const apiKeys = [
   {
     name: "SnippetX",
-    secretKey: "sk_live_51JkLMnR9x7cW8pQ3tHvFg2sAeB4dE6yXzP9qK0",
+    secretKey: "sk_test_FAKE_ONLY_DO_NOT_USE",
     created: "18/12/2025",
     lastUsed: "22/12/2025",
     expires: "25/12/2025",
@@ -9,7 +9,7 @@ export const apiKeys = [
   },
   {
     name: "BackendAPI",
-    secretKey: "sk_test_72NpQR8sT5vW3mKjL9bFcXdYz6hR7tGqA1wE4",
+    secretKey: "sk_test_FAKE_ONLY_DO_NOT_USE",
     created: "10/12/2025",
     lastUsed: "23/12/2025",
     expires: "31/12/2025",
@@ -17,7 +17,7 @@ export const apiKeys = [
   },
   {
     name: "MobileApp",
-    secretKey: "sk_live_83MqOP9sU6wX4nLjK0bGcYdZ7iS8tHrB2xF5",
+    secretKey: "sk_test_FAKE_ONLY_DO_NOT_USE",
     created: "15/12/2025",
     lastUsed: "23/12/2025",
     expires: "30/12/2025",
@@ -25,7 +25,7 @@ export const apiKeys = [
   },
   {
     name: "WebClient",
-    secretKey: "sk_test_94NrQP0tV7xY5mMkL1cHdZeA8iT9sIsC3yG6",
+    secretKey: "sk_test_FAKE_ONLY_DO_NOT_USE",
     created: "05/12/2025",
     lastUsed: "22/12/2025",
     expires: "05/01/2026",
@@ -33,7 +33,7 @@ export const apiKeys = [
   },
   {
     name: "PaymentGW",
-    secretKey: "sk_live_65JsKN8rT5vW2lIjK9bFcXdYz6hQ7tGpA0wE3",
+    secretKey: "sk_test_FAKE_ONLY_DO_NOT_USE",
     created: "20/12/2025",
     lastUsed: "23/12/2025",
     expires: "20/01/2026",
@@ -41,7 +41,7 @@ export const apiKeys = [
   },
   {
     name: "TestEnv",
-    secretKey: "sk_test_76KtLO9sU6wX3nMjL0bGcYdZ7iR8tHqB1xF4",
+    secretKey: "sk_test_FAKE_ONLY_DO_NOT_USE",
     created: "01/12/2025",
     lastUsed: "21/12/2025",
     expires: "01/01/2026",
@@ -49,7 +49,7 @@ export const apiKeys = [
   },
   {
     name: "Analytics",
-    secretKey: "sk_live_87LuMP0tV7xY4oLkM1cHdZeA8iS9tIrC2yG5",
+    secretKey: "sk_test_FAKE_ONLY_DO_NOT_USE",
     created: "12/12/2025",
     lastUsed: "23/12/2025",
     expires: "12/01/2026",
@@ -57,7 +57,7 @@ export const apiKeys = [
   },
   {
     name: "DevTools",
-    secretKey: "sk_test_98MvNQ1uW8yZ5pMlN2dIeB9jT0tJsD3zH6",
+    secretKey: "sk_test_FAKE_ONLY_DO_NOT_USE",
     created: "08/12/2025",
     lastUsed: "22/12/2025",
     expires: "08/01/2026",
@@ -65,7 +65,7 @@ export const apiKeys = [
   },
   {
     name: "Production",
-    secretKey: "sk_live_59IwJM7qS4vU1hIgJ8aEbWcXyZ5gQ6rF9zD2",
+    secretKey: "sk_test_FAKE_ONLY_DO_NOT_USE",
     created: "25/11/2025",
     lastUsed: "23/12/2025",
     expires: "25/12/2025",
@@ -73,7 +73,7 @@ export const apiKeys = [
   },
   {
     name: "Staging",
-    secretKey: "sk_test_70JxKN8rT5uW2kIjL9bGdXeYz6hR7sGpA0wE3",
+    secretKey: "sk_test_FAKE_ONLY_DO_NOT_USE",
     created: "30/11/2025",
     lastUsed: "22/12/2025",
     expires: "30/12/2025",
