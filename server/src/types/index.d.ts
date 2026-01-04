@@ -1,8 +1,6 @@
-export type UploadImageRequest = {
+export type ImageRequest = {
   token: {
     _id: string;
     user: string;
-    apiKey: string;
-    purpose: string;
   };
 };

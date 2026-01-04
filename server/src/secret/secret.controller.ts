@@ -12,26 +12,26 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import type { Response } from 'express';
-import { ApiKeyService } from './api-key.service';
 import { ZodValidationPipe } from '@/common/pipes/zod-validation.pipe';
-import { CreateApiKeySchema } from './dto/create-api-key.dto';
-import { ApiResponse } from '@/utils/api-response';
 import { AuthGuard } from '@/common/guard/auth.guard';
+import { ApiResponse } from '@/utils/api-response';
+import { SecretService } from './secret.service';
+import { CreateSecretSchema } from './dto/create-secret.dto';
 
 @UseGuards(AuthGuard)
-@Controller('apikeys')
-export class ApiKeyController {
-  constructor(private readonly apiKeyService: ApiKeyService) {}
+@Controller('secrets')
+export class SecretController {
+  constructor(private readonly secretService: SecretService) {}
 
   @Post()
-  @UsePipes(new ZodValidationPipe(CreateApiKeySchema))
+  @UsePipes(new ZodValidationPipe(CreateSecretSchema))
   async handleCreate(
     @Req() req: { user: { id: string } },
     @Body() body,
     @Res() res: Response,
   ): Promise<Response> {
-    const data = await this.apiKeyService.create(req.user.id, body);
-    return ApiResponse(201, { data, message: 'Api key created successfully' })(
+    const data = await this.secretService.create(req.user.id, body);
+    return ApiResponse(201, { data, message: 'Secret created successfully' })(
       res,
     );
   }
@@ -41,7 +41,7 @@ export class ApiKeyController {
     @Req() req: { user: { id: string } },
     @Res() res: Response,
   ): Promise<Response> {
-    const data = await this.apiKeyService.getAll(req.user.id);
+    const data = await this.secretService.getAll(req.user.id);
     return ApiResponse(200, { data })(res);
   }
 
@@ -51,7 +51,7 @@ export class ApiKeyController {
     @Param('id') id: string,
     @Res() res: Response,
   ): Promise<Response> {
-    await this.apiKeyService.disable(req.user.id, id);
+    await this.secretService.disable(req.user.id, id);
     return ApiResponse(200, { message: 'Api key disabled successfully' })(res);
   }
 
@@ -61,17 +61,27 @@ export class ApiKeyController {
     @Param('id') id: string,
     @Res() res: Response,
   ): Promise<Response> {
-    await this.apiKeyService.enable(req.user.id, id);
+    await this.secretService.enable(req.user.id, id);
     return ApiResponse(200, { message: 'Api key enabled successfully' })(res);
   }
 
-  @Delete(':id')
+  @Patch(':id/revoke')
   async handleRevoke(
     @Req() req: { user: { id: string } },
     @Param('id') id: string,
     @Res() res: Response,
   ): Promise<Response> {
-    await this.apiKeyService.revoke(req.user.id, id);
+    await this.secretService.revoke(req.user.id, id);
     return ApiResponse(200, { message: 'Api key revoked successfully' })(res);
+  }
+
+  @Delete(':id')
+  async handleDelete(
+    @Req() req: { user: { id: string } },
+    @Param('id') id: string,
+    @Res() res: Response,
+  ): Promise<Response> {
+    await this.secretService.delete(req.user.id, id);
+    return ApiResponse(200, { message: 'Api key deleted successfully' })(res);
   }
 }

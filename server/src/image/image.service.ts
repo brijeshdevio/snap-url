@@ -3,7 +3,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Image } from '@/entities/image.entity';
-import { UploadImageRequest } from '@/types';
+import { ImageRequest } from '@/types';
 
 @Injectable()
 export class ImageService {
@@ -11,26 +11,26 @@ export class ImageService {
     @InjectModel(Image.name) private readonly imageModel: Model<Image>,
   ) {}
 
-  private async generateApiKey(): Promise<string> {
+  private async generateImageTokenKey(): Promise<string> {
     const token = crypto.randomBytes(64).toString('hex');
     const imageTokenHash =
       'img_live_' + crypto.createHash('sha256').update(token).digest('hex');
-    const conflictApiKey = await this.imageModel.findOne({ imageTokenHash });
-    if (conflictApiKey) {
-      return this.generateApiKey();
+    const conflictImageToken = await this.imageModel.findOne({
+      imageTokenHash,
+    });
+    if (conflictImageToken) {
+      return await this.generateImageTokenKey();
     }
     return imageTokenHash;
   }
 
-  async upload(auth: UploadImageRequest['token'], data: any) {
-    const imageTokenHash = await this.generateApiKey();
+  async upload(auth: ImageRequest['token'], data: any) {
+    const imageTokenHash = await this.generateImageTokenKey();
 
     await this.imageModel.create({
       ...data,
       user: auth.user,
-      apiKey: auth.apiKey,
-      uploadToken: auth._id,
-      purpose: auth.purpose,
+      secret: auth._id,
       imageTokenHash,
     });
 
@@ -54,7 +54,6 @@ export class ImageService {
       .find({ user })
       .sort({ createdAt: -1 })
       .select('imageTokenHash displayName purpose size createdAt')
-      .lean()
       .lean();
     return images;
   }

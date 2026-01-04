@@ -1,15 +1,15 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 
-export type ApiKeyDocument = HydratedDocument<ApiKey>;
+export type SecretDocument = HydratedDocument<Secret>;
 
 @Schema({ timestamps: true })
-export class ApiKey {
+export class Secret {
   @Prop({ type: Types.ObjectId, required: true, ref: 'User' })
   user: Types.ObjectId;
 
   @Prop({ type: String, required: true, unique: true, index: true })
-  keyHash: string;
+  secretHash: string;
 
   @Prop({ type: String, required: true })
   name: string;
@@ -23,8 +23,11 @@ export class ApiKey {
   @Prop({ type: Date, default: null })
   lastUsedAt: Date;
 
+  @Prop({ type: Date, default: null })
+  expiredAt: Date;
+
   @Prop({ type: Number, default: 0 })
   usedCount: number;
 }
 
-export const ApiKeySchema = SchemaFactory.createForClass(ApiKey);
+export const SecretSchema = SchemaFactory.createForClass(Secret);

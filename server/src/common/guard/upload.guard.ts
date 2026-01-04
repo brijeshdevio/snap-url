@@ -1,4 +1,4 @@
-import { UploadTokenService } from '@/upload-token/upload-token.service';
+import { SecretService } from '@/secret/secret.service';
 import {
   CanActivate,
   ExecutionContext,
@@ -9,7 +9,7 @@ import { Request } from 'express';
 
 @Injectable()
 export class UploadGuard implements CanActivate {
-  constructor(private readonly uploadTokenService: UploadTokenService) {}
+  constructor(private readonly secretService: SecretService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
@@ -19,17 +19,23 @@ export class UploadGuard implements CanActivate {
       throw new ForbiddenException('Missing authorization token');
     }
     try {
-      const payload = await this.uploadTokenService.verifyToken(token);
+      const payload = (await this.secretService.verifySecret(
+        token,
+      )) as unknown as {
+        user: string;
+        _id: string;
+      };
+      payload._id = String(payload._id);
       // 💡 We're assigning the payload to the request object here
       // so that we can access it in our route handlers
       request['token'] = payload;
     } catch {
-      throw new ForbiddenException('Invalid or expired Upload token');
+      throw new ForbiddenException('Invalid or expired Upload secret');
     }
     return true;
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
-    return request.headers?.['x-upload-token'] as string;
+    return request.headers?.['x-upload-key'] as string;
   }
 }

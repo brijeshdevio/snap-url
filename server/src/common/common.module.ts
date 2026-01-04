@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common';
-import { AuthGuard } from './guard/auth.guard';
+import { SecretModule } from '@/secret/secret.module';
 import { UploadGuard } from './guard/upload.guard';
-import { UploadTokenModule } from '@/upload-token/upload-token.module';
 
 @Module({
-  imports: [UploadTokenModule],
-  exports: [],
-  providers: [AuthGuard, UploadGuard],
+  imports: [SecretModule],
+  exports: [UploadGuard],
+  providers: [UploadGuard],
 })
 export class CommonModule {}

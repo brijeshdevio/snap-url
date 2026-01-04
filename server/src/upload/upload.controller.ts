@@ -1,11 +1,10 @@
+import { Readable } from 'node:stream';
 import {
   BadRequestException,
-  Body,
   Controller,
   Get,
   InternalServerErrorException,
   Logger,
-  Param,
   Post,
   Req,
   Res,
@@ -13,59 +12,35 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { UploadTokenService } from './upload-token.service';
-import { ZodValidationPipe } from '@/common/pipes/zod-validation.pipe';
-import { type CreateTokenDto, CreateTokenSchema } from './dto/create-token.dto';
-import { ApiResponse } from '@/utils/api-response';
-import type { Response } from 'express';
-import { AuthGuard } from '@/common/guard/auth.guard';
-import { UploadGuard } from '@/common/guard/upload.guard';
-import axios, { AxiosError } from 'axios';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { cloudinary } from '@/config/cloudinary.config';
-import { Readable } from 'stream';
-import type { UploadImageRequest } from '@/types';
-import { ALLOWED_MIME_TYPES, getURL, MAX_FILE_SIZE } from '@/constants';
+import type { Response } from 'express';
 import { UserService } from '@/user/user.service';
 import { ImageService } from '@/image/image.service';
+import { UploadGuard } from '@/common/guard/upload.guard';
+import type { ImageRequest } from '@/types';
+import { ApiResponse } from '@/utils/api-response';
+import { UploadService } from './upload.service';
+import { ALLOWED_MIME_TYPES, getURL, MAX_FILE_SIZE } from '@/constants';
+import { cloudinary } from '@/config/cloudinary.config';
 
-// Constants for better maintainability
-const CACHE_MAX_AGE = 31536000; // 1 year in seconds
 const UPLOAD_FOLDER = 'snap-url';
 const CLOUDINARY_RESOURCE_TYPE = 'auto';
 // const IMAGE_PROXY_TIMEOUT = 10000; // 10 seconds timeout for image fetching
 
 @Controller('uploads')
-export class UploadTokenController {
-  private readonly logger = new Logger(UploadTokenController.name);
+export class UploadController {
+  private readonly logger = new Logger(UploadController.name);
   constructor(
-    private readonly uploadTokenService: UploadTokenService,
+    private readonly uploadService: UploadService,
     private readonly userService: UserService,
     private readonly imageService: ImageService,
   ) {}
-
-  @UseGuards(AuthGuard)
-  @Post(':apiKey/sign')
-  async handleCreate(
-    @Req() req: { user: { id: string } },
-    @Param('apiKey') apiKey: string,
-    @Body(new ZodValidationPipe(CreateTokenSchema))
-    body: CreateTokenDto,
-    @Res() res: Response,
-  ): Promise<Response> {
-    const data = await this.uploadTokenService.create(
-      req.user.id,
-      apiKey,
-      body,
-    );
-    return ApiResponse(201, { data })(res);
-  }
 
   @UseGuards(UploadGuard)
   @Post()
   @UseInterceptors(FileInterceptor('file'))
   async handleUpload(
-    @Req() req: UploadImageRequest,
+    @Req() req: ImageRequest,
     @UploadedFile() file: Express.Multer.File,
     @Res() res: Response,
   ): Promise<Response> {
@@ -195,65 +170,6 @@ export class UploadTokenController {
       // Include additional useful info
       timestamp: new Date().toISOString(),
     };
-  }
-
-  /** 📤 Set Image Headers */
-  private setImageHeaders(res: Response, axiosResponse: any): void {
-    const headers = {
-      'Content-Type': axiosResponse.headers['content-type'],
-      'Content-Length': axiosResponse.headers['content-length'],
-      'Cache-Control': `public, max-age=${CACHE_MAX_AGE}`,
-      'Last-Modified':
-        axiosResponse.headers['last-modified'] || new Date().toUTCString(),
-      ETag: axiosResponse.headers['etag'] || `"${Date.now()}"`,
-    };
-
-    Object.entries(headers).forEach(([key, value]) => {
-      if (value) {
-        res.setHeader(key, value);
-      }
-    });
-  }
-
-  /** ❌ Error Handling for Image Fetch */
-  private handleImageFetchError(
-    error: any,
-    dName: string,
-    res: Response,
-  ): void {
-    this.logger.error(`Failed to fetch image ${dName}: ${error.message}`);
-
-    // Check if response has already been sent
-    if (res.headersSent) {
-      return;
-    }
-
-    // Handle specific error types
-    if (axios.isAxiosError(error)) {
-      const axiosError = error as AxiosError;
-
-      if (axiosError.code === 'ECONNABORTED') {
-        res.status(504).json({ error: 'Image source timeout' });
-        return;
-      }
-
-      if (axiosError.response?.status === 404) {
-        res.status(404).json({ error: 'Image not found' });
-        return;
-      }
-
-      if (axiosError.response?.status === 403) {
-        res.status(403).json({ error: 'Access to image denied' });
-        return;
-      }
-    }
-
-    // Default error response
-    if (error instanceof BadRequestException) {
-      res.status(400).json({ error: error.message });
-    } else {
-      res.status(500).json({ error: 'Failed to retrieve image' });
-    }
   }
 
   /** 🔍 Health Check for Image Service */

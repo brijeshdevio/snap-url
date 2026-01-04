@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Image, ImageSchema } from '@/entities/image.entity';
-import { ImageService } from './image.service';
 import { ImageController } from './image.controller';
+import { ImageService } from './image.service';
 
 @Module({
   imports: [

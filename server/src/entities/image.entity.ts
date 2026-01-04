@@ -8,21 +8,11 @@ export class Image {
   @Prop({ type: Types.ObjectId, required: true, ref: 'User' })
   user: Types.ObjectId;
 
-  @Prop({ type: Types.ObjectId, required: true, ref: 'ApiKey' })
-  apiKey: Types.ObjectId;
-
-  @Prop({ type: Types.ObjectId, required: true, ref: 'UploadToken' })
-  uploadToken: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, required: true, ref: 'Secret' })
+  secret: Types.ObjectId;
 
   @Prop({ type: String, required: true, unique: true, index: true })
   imageTokenHash: string;
-
-  @Prop({
-    type: String,
-    enum: ['avatar', 'cover', 'post', 'thumbnail', 'other'],
-    default: 'avatar',
-  })
-  purpose: string;
 
   @Prop({ type: String })
   publicId: string;
@@ -44,15 +34,6 @@ export class Image {
 
   @Prop({ type: Number, default: null })
   height: number;
-
-  @Prop({ type: Boolean, default: true })
-  isDeleted: boolean;
-
-  @Prop({ type: Date, default: null })
-  deletedAt: Date;
-
-  @Prop({ type: Date, default: null })
-  expiresAt: Date;
 
   @Prop({ type: Date, default: Date.now })
   createdAt: Date;

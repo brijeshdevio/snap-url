@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
-export const CreateApiKeySchema = z
+export const CreateSecretSchema = z
   .object({
     name: z.string().min(3, 'Name is required'),
   })
   .strict();
 
-export type CreateApiKeyDto = z.infer<typeof CreateApiKeySchema>;
+export type CreateSecretDto = z.infer<typeof CreateSecretSchema>;

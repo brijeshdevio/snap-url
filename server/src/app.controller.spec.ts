@@ -16,9 +16,7 @@ describe('AppController', () => {
 
   describe('root', () => {
     it('should return "Hello World!"', () => {
-      expect(appController.handleGetGreet()).toBe(
-        'Welcome to the SnapURL API!',
-      );
+      expect(appController.getHello()).toBe('Hello World!');
     });
   });
 });
