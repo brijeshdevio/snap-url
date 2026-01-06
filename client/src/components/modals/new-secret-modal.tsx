@@ -6,16 +6,14 @@ import type { SecretForm } from "@/types/secret";
 import { useModal } from "@/app/providers/modal-provider";
 
 export function NewSecretModal() {
-  const { mutateAsync, isPending, isError } = useCreateSecret();
+  const { mutateAsync, isPending, data } = useCreateSecret();
   const { closeModal } = useModal();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
     const data = Object.fromEntries(form.entries()) as SecretForm;
-    await mutateAsync(data).finally(() => {
-      if (!isError) handleCloseModal();
-    });
+    mutateAsync(data);
   };
 
   const handleCloseModal = () => closeModal();
@@ -43,7 +41,30 @@ export function NewSecretModal() {
               A display name for the key. Maximum 50 characters.
             </p>
           </div>
+          {data?.data?.secretHash && (
+            <div>
+              <InputField
+                label="Secret API Key"
+                disabled
+                value={data?.data?.secretHash}
+              />
+              <p className="text-warning/80 text-sm mt-1">
+                This key will be generated and shown only once. Please copy it
+                somewhere safe!
+              </p>
+            </div>
+          )}
           <div className="flex items-center justify-end">
+            {data?.data.secretHash && (
+              <button
+                type="button"
+                className="btn btn-gradient me-3"
+                disabled={isPending}
+                onClick={handleCloseModal}
+              >
+                Close
+              </button>
+            )}
             <button
               type="submit"
               className="btn btn-primary btn-gradient"
