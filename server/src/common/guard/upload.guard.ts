@@ -36,6 +36,6 @@ export class UploadGuard implements CanActivate {
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
-    return request.headers?.['x-upload-key'] as string;
+    return request.headers?.['x-upload-token'] as string;
   }
 }
