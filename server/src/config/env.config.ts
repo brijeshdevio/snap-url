@@ -9,4 +9,5 @@ export const envConfig = {
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY!,
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET!,
   API_URL: process.env.API_URL!,
+  FRONTEND_URL: process.env.FRONTEND_URL!,
 };

@@ -16,6 +16,7 @@ import { SignupSchema } from './dto/signup.dto';
 import { AuthService } from './auth.service';
 import { LoginSchema } from './dto/login.dto';
 import { AuthGuard } from '@/common/guard/auth.guard';
+import { envConfig } from '@/config/env.config';
 
 @Controller('auth')
 export class AuthController {
@@ -104,6 +105,6 @@ export class AuthController {
       maxAge: 24 * 60 * 60 * 1000,
     });
 
-    res.redirect('/api/users/me');
+    res.redirect(envConfig.FRONTEND_URL);
   }
 }

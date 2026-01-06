@@ -39,7 +39,7 @@ export function Login() {
 
       <div>
         <Link
-          to={"/auth/github"}
+          to={import.meta.env.VITE_API_URL + "/auth/github"}
           className="btn btn-accent btn-gradient w-full"
         >
           <Github size={20} />
