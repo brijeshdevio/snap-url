@@ -6,6 +6,7 @@ import { useModal } from "@/app/providers/modal-provider";
 import { NewSecretModal } from "@/components/modals/new-secret-modal";
 import { formatDate } from "@/utils";
 import { Loader } from "@/components";
+import { Link } from "react-router-dom";
 
 type SecretType = {
   _id: string;
@@ -33,6 +34,11 @@ function TableRow({ secret }: { secret: SecretType }) {
       <td>{formatDate(secret.lastUsedAt) ?? "__"}</td>
       <td>{formatDate(secret.expiredAt) ?? "__"}</td>
       <td>{secret.usedCount} API Calls</td>
+      <td>
+        <Link to={`/${secret._id}/images`} className="link hover:text-primary">
+          View
+        </Link>
+      </td>
       <td>
         <div className="flex items-center gap-3">
           <button className="btn btn-soft btn-circle">
@@ -108,6 +114,7 @@ function ApiKeySection() {
             <th>LAST USED</th>
             <th>EXPIRES</th>
             <th>USAGE (24HRS)</th>
+            <th>IMAGES</th>
             <th></th>
           </tr>
         </thead>
