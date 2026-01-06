@@ -18,6 +18,20 @@ export function useCreateSecret() {
   });
 }
 
+export function useDeleteSecret() {
+  const { refetch } = useGetAllSecret();
+
+  return useMutation({
+    mutationKey: ["delete-secret"],
+    mutationFn: (id: string) => SecretService.delete(id),
+    onSuccess: (data: AxiosResponse["data"]) => {
+      notifySuccess(data.message);
+      refetch();
+    },
+    onError: (error: unknown) => notifyError(error),
+  });
+}
+
 export function useGetAllSecret() {
   return useQuery({
     queryKey: ["get-all-secret"],
