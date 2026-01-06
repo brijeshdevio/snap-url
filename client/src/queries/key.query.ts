@@ -1,15 +1,15 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { AxiosResponse } from "axios";
-import { KeyService } from "@/services/key.service";
+import { SecretService } from "@/services/secret.service";
 import { notifyError, notifySuccess } from "@/utils";
-import type { KeyForm } from "@/types/key";
+import type { SecretForm } from "@/types/secret";
 
-export function useCreateKey() {
-  const { refetch } = useGetAllKey();
+export function useCreateSecret() {
+  const { refetch } = useGetAllSecret();
 
   return useMutation({
-    mutationKey: ["create-key"],
-    mutationFn: (data: KeyForm) => KeyService.create(data),
+    mutationKey: ["create-secret"],
+    mutationFn: (data: SecretForm) => SecretService.create(data),
     onSuccess: (data: AxiosResponse["data"]) => {
       notifySuccess(data.message);
       refetch();
@@ -18,10 +18,10 @@ export function useCreateKey() {
   });
 }
 
-export function useGetAllKey() {
+export function useGetAllSecret() {
   return useQuery({
-    queryKey: ["get-all-key"],
-    queryFn: () => KeyService.getAll(),
+    queryKey: ["get-all-secret"],
+    queryFn: () => SecretService.getAll(),
     enabled: false,
   });
 }

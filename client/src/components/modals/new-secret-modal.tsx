@@ -1,18 +1,18 @@
 import { type FormEvent } from "react";
 import { X } from "lucide-react";
 import { InputField } from "../ui/InputField";
-import { useCreateKey } from "@/queries/key.query";
-import type { KeyForm } from "@/types/key";
+import { useCreateSecret } from "@/queries/key.query";
+import type { SecretForm } from "@/types/secret";
 import { useModal } from "@/app/providers/modal-provider";
 
-export function NewKeyModal() {
-  const { mutateAsync, isPending, isError } = useCreateKey();
+export function NewSecretModal() {
+  const { mutateAsync, isPending, isError } = useCreateSecret();
   const { closeModal } = useModal();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
-    const data = Object.fromEntries(form.entries()) as KeyForm;
+    const data = Object.fromEntries(form.entries()) as SecretForm;
     await mutateAsync(data).finally(() => {
       if (!isError) handleCloseModal();
     });

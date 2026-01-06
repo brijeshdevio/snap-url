@@ -1,23 +1,33 @@
 import { Pen, Plus, Trash } from "lucide-react";
-import { apiKeys } from "@/dummy";
-import { useGetAllKey } from "@/queries/key.query";
+// import { apiKeys } from "@/dummy";
+import { useGetAllSecret } from "@/queries/key.query";
 import { useEffect } from "react";
 import { useModal } from "@/app/providers/modal-provider";
-import { NewKeyModal } from "@/components/modals/new-key-modal";
+import { NewSecretModal } from "@/components/modals/new-secret-modal";
+import { formatDate } from "@/utils";
 
-function TableBody() {
+type SecretType = {
+  _id: string;
+  name: string;
+  secretHash: string;
+  createdAt: string;
+  lastUsedAt: string;
+  expiredAt: string;
+  isActive: boolean;
+  usedCount: number;
+};
+
+function TableBody({ secrets = [] }: { secrets: SecretType[] }) {
   return (
     <tbody className="text-base opacity-90">
-      {apiKeys?.map((apiKey) => (
+      {secrets?.map((secret) => (
         <tr className="border-b border-white/10">
-          <td>{apiKey.name} </td>
-          <td className="opacity-50">
-            {apiKey.secretKey.slice(0, 3)}...{apiKey.secretKey.slice(-3)}
-          </td>
-          <td>{apiKey.created}</td>
-          <td>{apiKey.lastUsed}</td>
-          <td>{apiKey.expires}</td>
-          <td>{apiKey.used24Hrs} API Calls</td>
+          <td>{secret.name} </td>
+          <td className="opacity-50">{secret.secretHash}</td>
+          <td>{formatDate(secret.createdAt) ?? "__"}</td>
+          <td>{formatDate(secret.lastUsedAt) ?? "__"}</td>
+          <td>{formatDate(secret.expiredAt) ?? "__"}</td>
+          <td>{secret.usedCount} API Calls</td>
           <td>
             <div className="flex items-center gap-3">
               <button className="btn btn-soft btn-circle">
@@ -35,12 +45,12 @@ function TableBody() {
 }
 
 function ApiKeySection() {
-  const { data, refetch } = useGetAllKey();
-  console.log(data);
+  const { data, refetch } = useGetAllSecret();
 
   useEffect(() => {
     refetch();
   }, [refetch]);
+
   return (
     <div className="w-full h-[70vh] overflow-x-auto mt-5">
       <table className="table table-pin-rows shadow bg-base-200">
@@ -55,7 +65,7 @@ function ApiKeySection() {
             <th></th>
           </tr>
         </thead>
-        <TableBody />
+        <TableBody secrets={data?.data || []} />
       </table>
     </div>
   );
@@ -63,7 +73,7 @@ function ApiKeySection() {
 
 export function ApiKeyPage() {
   const { openModal } = useModal();
-  const handleOpenModal = () => openModal(<NewKeyModal />);
+  const handleOpenModal = () => openModal(<NewSecretModal />);
 
   return (
     <>
