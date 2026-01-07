@@ -1,46 +1,71 @@
-import { Settings } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 const navItems = [
   { to: "/playground", label: "Playground" },
-  { to: "/keys", label: "API Keys" },
   { to: "/dashboard", label: "Dashboard" },
   { to: "/docs", label: "Docs" },
-  { to: "/settings", label: <Settings /> },
+  { to: "/profile", label: "Profile" },
 ];
 
-export function Navbar() {
+const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <nav className="fixed top-0 left-0 z-10  navbar rounded-box flex w-full items-center justify-between gap-2 border-b border-white/5">
-      <div className="navbar-start max-md:w-1/4">
-        <Link to="/" className="logo">
-          <span className="text-xl !font-extrabold">SnapURL</span>
-        </Link>
+    <header className="w-full sticky top-0 bg-base-100 z-50 rounded-2xl shadow border-b border-white/10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16 w-full">
+          {/* Logo */}
+          <div className="flex items-center justify-between max-md:w-1/4">
+            <Link to="/" className="logo">
+              <span className="text-xl !font-extrabold">SnapURL</span>
+            </Link>
+          </div>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex space-x-2">
+            {navItems?.map((item) => (
+              <Link to={item.to} className="dropdown-item">
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Mobile menu button */}
+          <div className="md:hidden">
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="dropdown-toggle btn btn-text btn-circle dropdown-open:bg-base-content/10 dropdown-open:text-base-content"
+            >
+              {isOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile menu */}
+        {isOpen && (
+          <div className="md:hidden">
+            <div className="pb-3 space-y-1">
+              {navItems?.map((item) => (
+                <Link
+                  to={item.to}
+                  className="dropdown-item"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
-      <div className="md:hidden">
-        <button
-          type="button"
-          className="collapse-toggle btn btn-outline btn-secondary btn-sm btn-square"
-          data-collapse="#default-navbar-collapse"
-          aria-controls="default-navbar-collapse"
-          aria-label="Toggle navigation"
-        >
-          <span className="icon-[tabler--menu-2] collapse-open:hidden size-4"></span>
-          <span className="icon-[tabler--x] collapse-open:block hidden size-4"></span>
-        </button>
-      </div>
-      <div
-        id="default-navbar-collapse"
-        className="md:navbar-end collapse hidden grow basis-full overflow-hidden transition-[height] duration-300 max-md:w-full"
-      >
-        <ul className="menu md:menu-horizontal gap-2 p-0 text-base max-md:mt-2">
-          {navItems?.map((item) => (
-            <li key={item.to}>
-              <Link to={item.to}>{item.label}</Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </nav>
+    </header>
   );
-}
+};
+
+export { Navbar };
