@@ -113,7 +113,10 @@ export function Home() {
             </p>
           </div>
           <div>
-            <Link to={"/signup"} className="btn btn-primary btn-gradient">
+            <Link
+              to={"/signup"}
+              className="btn btn-primary btn-gradient whitespace-nowrap"
+            >
               Sign up Now
             </Link>
           </div>
