@@ -95,7 +95,7 @@ function Feature() {
   );
 }
 
-export function Home() {
+export function HomePage() {
   return (
     <>
       <Header />

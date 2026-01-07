@@ -6,6 +6,6 @@ export default function AuthRoute() {
   const { user, loading, isAuthenticated } = useAuth();
 
   if (loading) return <Loader className="h-screen" />;
-  if (user && isAuthenticated) return <Navigate to="/keys" replace />;
+  if (user && isAuthenticated) return <Navigate to="/dashboard" replace />;
   return <Outlet />;
 }

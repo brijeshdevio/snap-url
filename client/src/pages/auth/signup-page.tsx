@@ -1,9 +1,16 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Github } from "lucide-react";
 import { InputField, type InputFieldProps } from "@/components";
-import { useLogin } from "@/queries/auth.query";
+import { useSignup } from "@/queries/auth.query";
+import { isAxiosError } from "axios";
 
 const formFields = [
+  {
+    label: "Full Name",
+    type: "text",
+    name: "name",
+    placeholder: "e.g. John Doe",
+  },
   {
     label: "Email Address",
     type: "email",
@@ -18,9 +25,9 @@ const formFields = [
   },
 ];
 
-export function Login() {
-  const { mutate, isPending, error } = useLogin();
-  const errors = error?.response?.data?.errors;
+export function SignupPage() {
+  const { mutate, isPending, error } = useSignup();
+  const errors = isAxiosError(error) ? error.response?.data?.errors : null;
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -31,9 +38,9 @@ export function Login() {
   return (
     <section className="flex flex-col gap-5 w-full max-w-[440px] mx-auto ">
       <div className="text-center">
-        <h1 className="text-2xl mb-1">Welcome back</h1>
+        <h1 className="text-2xl mb-1">Create your account</h1>
         <p className="text-md opacity-70">
-          Log in to manage your API keys and projects.
+          Start your journey with the fastest, most reliable image upload API.
         </p>
       </div>
 
@@ -73,21 +80,28 @@ export function Login() {
             </>
           ) : (
             <>
-              <span>Log in</span>
+              <span>Create Account</span>
               <ArrowRight size={20} />
             </>
           )}
         </button>
       </form>
 
+      <div className="text-center text-sm opacity-70">
+        <p>
+          Why we need your email? We use it to send important account
+          notifications and for password recovery.
+        </p>
+      </div>
+
       <div className="opacity-70 text-center">
         <p>
-          Don't have an account?{" "}
+          Already have an account?{" "}
           <Link
-            to={"/signup"}
+            to={"/login"}
             className=" link-animated hover:text-primary text-base-content"
           >
-            Sign up
+            Log in
           </Link>
         </p>
       </div>

@@ -104,7 +104,7 @@ function ApiKeySection() {
   }
 
   return (
-    <div className="w-full h-[70vh] overflow-x-auto">
+    <div className="w-full max-h-[70vh] overflow-x-auto">
       <table className="table table-pin-rows shadow bg-base-200">
         <thead className="text-white/50">
           <tr>
@@ -124,24 +124,24 @@ function ApiKeySection() {
   );
 }
 
-export function ApiKeyPage() {
+export function DashboardPage() {
   const { openModal } = useModal();
   const handleOpenModal = () => openModal(<NewSecretModal />);
 
   return (
     <>
       <section>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h2 className="text-2xl">API Keys</h2>
-            <p className="text-md opacity-80 mt-1">
+            <p className="text-md opacity-80 mt-1 flex-wrap">
               Manage your project API keys. Remember to keep your API keys safe
               to prevent unauthorized access.
             </p>
           </div>
           <div>
             <button
-              className="btn btn-primary btn-gradient"
+              className="btn btn-primary btn-gradient whitespace-nowrap"
               onClick={() => handleOpenModal()}
             >
               <Plus size={20} />

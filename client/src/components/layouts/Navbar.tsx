@@ -26,7 +26,11 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-2">
             {navItems?.map((item) => (
-              <Link to={item.to} className="dropdown-item">
+              <Link
+                key={`nav-item-${item.label}`}
+                to={item.to}
+                className="dropdown-item"
+              >
                 {item.label}
               </Link>
             ))}
@@ -53,6 +57,7 @@ const Navbar = () => {
             <div className="pb-3 space-y-1">
               {navItems?.map((item) => (
                 <Link
+                  key={`mobile-menu-${item.label}`}
                   to={item.to}
                   className="dropdown-item"
                   onClick={() => setIsOpen(false)}

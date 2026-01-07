@@ -18,7 +18,7 @@ export function useLogin() {
     mutationFn: AuthService.login,
     onSuccess: (data: AxiosResponse["data"]) => {
       notifySuccess(data.message);
-      window.location.href = "/keys";
+      window.location.href = "/dashboard";
     },
     onError: (error: unknown) => notifyError(error),
   });
