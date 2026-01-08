@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Controller,
+  Delete,
   Get,
   Header,
   Logger,
@@ -66,6 +67,15 @@ export class ImageController {
     } catch (error) {
       this.handleImageFetchError(error, dName, res);
     }
+  }
+
+  @Delete(':imageTokenHash')
+  async handleDeleteImage(
+    @Param('imageTokenHash') imageTokenHash: string,
+    @Res() res: Response,
+  ): Promise<Response> {
+    await this.imageService.deleteImage(imageTokenHash);
+    return ApiResponse(204, { message: 'Image deleted successfully' })(res);
   }
 
   /** 📤 Set Image Headers */

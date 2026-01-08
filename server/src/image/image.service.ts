@@ -1,9 +1,14 @@
 import crypto from 'node:crypto';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Image } from '@/entities/image.entity';
 import { ImageRequest } from '@/types';
+import { cloudinary } from '@/config/cloudinary.config';
 
 @Injectable()
 export class ImageService {
@@ -14,7 +19,7 @@ export class ImageService {
   private async generateImageTokenKey(): Promise<string> {
     const token = crypto.randomBytes(64).toString('hex');
     const imageTokenHash =
-      'img_live_' + crypto.createHash('sha256').update(token).digest('hex');
+      'img_' + crypto.createHash('sha256').update(token).digest('hex');
     const conflictImageToken = await this.imageModel.findOne({
       imageTokenHash,
     });
@@ -53,8 +58,24 @@ export class ImageService {
     const images = await this.imageModel
       .find({ user })
       .sort({ createdAt: -1 })
-      .select('imageTokenHash displayName purpose size createdAt')
+      .select('-__v -user -updatedAt -secret -width -height -url')
       .lean();
     return images;
+  }
+
+  async deleteImage(imageTokenHash: string): Promise<void> {
+    const deletedImage = await this.imageModel.findOne({
+      imageTokenHash,
+    });
+
+    if (deletedImage) {
+      await cloudinary.uploader.destroy(deletedImage.publicId);
+      await this.imageModel.deleteOne({ imageTokenHash });
+      return;
+    }
+
+    throw new UnauthorizedException(
+      `You are not authorized to delete this image`,
+    );
   }
 }
