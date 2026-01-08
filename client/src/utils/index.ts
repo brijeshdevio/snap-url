@@ -1,3 +1,4 @@
 export * from "./globalError";
 export * from "./notify";
-export * from "./formatDate";
+export * from "./format-date";
+export * from "./format-bytes";

@@ -9,11 +9,11 @@ function App() {
   return (
     <>
       <QueryClientProvider client={new QueryClient()}>
-        <AuthProvider>
-          <ModalProvider>
+        <ModalProvider>
+          <AuthProvider>
             <AppRoutes />
-          </ModalProvider>
-        </AuthProvider>
+          </AuthProvider>
+        </ModalProvider>
       </QueryClientProvider>
       <Toaster />
     </>

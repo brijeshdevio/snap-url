@@ -25,7 +25,7 @@ export function AppRoutes() {
         <Route element={<ProtectLayout />}>
           <Route element={<ProtectRoute />}>
             <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/images" element={<ImagePage />} />
+            <Route path="/:secret_id/images" element={<ImagePage />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
         </Route>

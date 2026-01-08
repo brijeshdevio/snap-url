@@ -1,7 +1,6 @@
 import { Pen, Plus, Trash } from "lucide-react";
 // import { apiKeys } from "@/dummy";
 import { useDeleteSecret, useGetAllSecret } from "@/queries/key.query";
-import { useEffect } from "react";
 import { useModal } from "@/app/providers/modal-provider";
 import { NewSecretModal } from "@/components/modals/new-secret-modal";
 import { formatDate } from "@/utils";
@@ -71,17 +70,7 @@ function TableBody({ secrets = [] }: { secrets: SecretType[] }) {
 }
 
 function ApiKeySection() {
-  const {
-    data,
-    refetch: fetchSecrets,
-    isPending,
-    isError,
-    error,
-  } = useGetAllSecret();
-
-  useEffect(() => {
-    fetchSecrets();
-  }, [fetchSecrets]);
+  const { data, isPending, isError, error } = useGetAllSecret();
 
   if (isPending) {
     return <Loader className="!h-[400px]" />;

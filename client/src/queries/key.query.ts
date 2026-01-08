@@ -36,6 +36,6 @@ export function useGetAllSecret() {
   return useQuery({
     queryKey: ["get-all-secret"],
     queryFn: () => SecretService.getAll(),
-    enabled: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
