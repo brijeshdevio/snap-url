@@ -4,8 +4,9 @@ import { Link } from "react-router-dom";
 
 const navItems = [
   { to: "/playground", label: "Playground" },
-  { to: "/dashboard", label: "Dashboard" },
   { to: "/docs", label: "Docs" },
+  { to: "/dashboard", label: "Dashboard" },
+  { to: "/images", label: "Images" },
   { to: "/profile", label: "Profile" },
 ];
 
