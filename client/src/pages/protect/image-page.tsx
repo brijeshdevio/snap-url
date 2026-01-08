@@ -1,6 +1,6 @@
 import { Trash } from "lucide-react";
 import { Loader, ToolTip } from "@/components";
-import { useGetAllImages } from "@/queries/image.query";
+import { useDeleteImage, useGetAllImages } from "@/queries/image.query";
 import { formatBytes, formatDate } from "@/utils";
 
 type ImageType = {
@@ -14,9 +14,14 @@ type ImageType = {
 };
 
 function TableRow({ image }: { image: ImageType }) {
+  const { mutate: deleteImage, isPending } = useDeleteImage();
   const imageUrl =
     import.meta.env.VITE_API_URL + "/images/" + image.displayName;
   const sortImageTokenHash = image.imageTokenHash.slice(0, 10) + "...";
+
+  function handleDelete() {
+    deleteImage(image.imageTokenHash);
+  }
 
   return (
     <tr className="border-b border-white/10">
@@ -36,8 +41,16 @@ function TableRow({ image }: { image: ImageType }) {
       </td>
       <td>
         <div className="flex items-center gap-3">
-          <button className="btn btn-soft btn-error btn-circle">
-            <Trash size={20} />
+          <button
+            className="btn btn-soft btn-error btn-circle"
+            onClick={handleDelete}
+            disabled={isPending}
+          >
+            {isPending ? (
+              <span className="loading loading-spinner"></span>
+            ) : (
+              <Trash size={20} />
+            )}
           </button>
         </div>
       </td>

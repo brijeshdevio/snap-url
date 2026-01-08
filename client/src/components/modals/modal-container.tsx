@@ -12,7 +12,7 @@ export const ModalContainer = React.memo(
         <div className="absolute inset-0 bg-base-200/90" onClick={closeModal} />
 
         {/* Modal Box */}
-        <div className="">{children}</div>
+        <div className="p-3">{children}</div>
       </div>
     );
   }

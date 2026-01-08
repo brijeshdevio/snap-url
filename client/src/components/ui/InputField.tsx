@@ -20,7 +20,7 @@ export function InputField({ label, errors, ...props }: InputFieldProps) {
   const error = errors?.find((error) => error.field === props.name);
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-1 w-full">
       {label && (
         <label htmlFor={id} className="text-accent-content">
           {label}
