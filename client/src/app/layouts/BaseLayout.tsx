@@ -5,7 +5,7 @@ export function BaseLayout() {
   return (
     <>
       <Navbar />
-      <main className="w-full sm:w-[90%] mx-auto px-3 py-5">
+      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
         <Outlet />
       </main>
       <Footer />
