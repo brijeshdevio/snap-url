@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState, type ReactNode } from "react";
 import { UserService } from "@/services/user.service";
-import { globalError } from "@/utils";
 
 import type { AuthContextType } from "@/types";
 import { createContext } from "react";
@@ -26,8 +25,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(response.data);
           setIsAuthenticated(true);
         }
-      } catch (error: unknown) {
-        globalError(error);
       } finally {
         setLoading(false);
       }
