@@ -4,6 +4,7 @@ import { AuthLayout } from "../layouts/AuthLayout";
 import { ProtectLayout } from "../layouts/ProtectLayout";
 import {
   DashboardPage,
+  DocsPage,
   HomePage,
   ImagePage,
   LoginPage,
@@ -21,6 +22,7 @@ export function AppRoutes() {
         <Route element={<BaseLayout />}>
           <Route index element={<HomePage />} />
           <Route path="/playground" element={<PlaygroundPage />} />
+          <Route path="/docs" element={<DocsPage />} />
         </Route>
         <Route element={<ProtectLayout />}>
           <Route element={<ProtectRoute />}>

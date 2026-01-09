@@ -5,3 +5,4 @@ export * from "./protect/dashboard-page";
 export * from "./protect/image-page";
 export * from "./public/playground-page";
 export * from "./protect/profile-page";
+export * from "./public/docs-page";
