@@ -10,6 +10,7 @@ import {
   LoginPage,
   PlaygroundPage,
   ProfilePage,
+  SettingPage,
   SignupPage,
 } from "@/pages";
 import ProtectRoute from "./ProtectRoute";
@@ -28,6 +29,7 @@ export function AppRoutes() {
           <Route element={<ProtectRoute />}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/images" element={<ImagePage />} />
+            <Route path="/settings" element={<SettingPage />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
         </Route>

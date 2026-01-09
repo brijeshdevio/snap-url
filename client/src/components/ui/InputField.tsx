@@ -33,7 +33,7 @@ export function InputField({ label, errors, ...props }: InputFieldProps) {
           className={props.className}
           type={isVisiblePassword ? "text" : props.type}
         />
-        {props.name === "password" && (
+        {props.type === "password" && (
           <button type="button" onClick={handleTogglePassword}>
             {isVisiblePassword ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
