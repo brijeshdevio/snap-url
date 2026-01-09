@@ -1,5 +1,6 @@
 import { useAuth } from "@/app/providers/AuthProvider";
 import { InputField } from "@/components";
+import { useChangeEmail } from "@/queries/user.query";
 
 const changePasswordForm = [
   {
@@ -21,6 +22,13 @@ const changePasswordForm = [
 
 function ChangeEmailSection() {
   const { user } = useAuth();
+  const { mutate: changeEmail, isPending } = useChangeEmail();
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    changeEmail(Object.fromEntries(formData) as unknown as { email: string });
+  };
 
   return (
     <section className="mb-6">
@@ -31,11 +39,30 @@ function ChangeEmailSection() {
             Update your account email address. Please note that changing your
             email will require you to re-verify your account.
           </p>
-          <form className="flex flex-col gap-3 mt-2">
-            <InputField label="Email Address" defaultValue={user?.email} />
+          <form className="flex flex-col gap-3 mt-2" onSubmit={handleSubmit}>
+            <InputField
+              label="Email Address"
+              name="email"
+              type="email"
+              placeholder="Enter new email address"
+              defaultValue={user?.email}
+              required
+            />
             <div>
-              <button type="submit" className="btn btn-primary">
-                Change Email
+              <button
+                type="submit"
+                className="btn btn-primary btn-gradient"
+                disabled={isPending}
+              >
+                {isPending ? (
+                  <>
+                    <span className="loading loading-spinner"></span>
+                  </>
+                ) : (
+                  <>
+                    <span>Change Email</span>
+                  </>
+                )}
               </button>
             </div>
           </form>

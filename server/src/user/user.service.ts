@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from '@/entities/user.entity';
@@ -49,5 +53,14 @@ export class UserService {
       { _id: userId },
       { $inc: { usedQuota: -size } },
     );
+  }
+
+  async changeEmail(userId: string, newEmail: string): Promise<void> {
+    const isEmailTaken = await this.userModel.exists({ email: newEmail });
+    if (isEmailTaken) {
+      throw new ConflictException('Email is already taken');
+    }
+
+    await this.userModel.findOneAndUpdate({ _id: userId }, { email: newEmail });
   }
 }
