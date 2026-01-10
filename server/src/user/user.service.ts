@@ -11,6 +11,7 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import argon2 from 'argon2';
 import { Secret } from '@/entities/secret.entity';
 import { Image } from '@/entities/image.entity';
+import { UpdateDto } from './dto/update.dto';
 
 @Injectable()
 export class UserService {
@@ -24,6 +25,24 @@ export class UserService {
     const user = await this.userModel
       .findById(userId)
       .select('name email plan createdAt avatar')
+      .lean();
+    if (user) {
+      return user;
+    }
+
+    throw new UnauthorizedException('You are not authorized');
+  }
+
+  async update(userId: string, updateData: UpdateDto): Promise<User> {
+    const user = await this.userModel
+      .findByIdAndUpdate(
+        userId,
+        { name: updateData.name },
+        {
+          new: true,
+        },
+      )
+      .select('name')
       .lean();
     if (user) {
       return user;

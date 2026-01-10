@@ -3,6 +3,15 @@ import type { AxiosResponse } from "axios";
 import { UserService } from "@/services/user.service";
 import { notifyError, notifySuccess } from "@/utils";
 
+export function useUpdateProfile() {
+  return useMutation({
+    mutationKey: ["update-profile"],
+    mutationFn: UserService.update,
+    onSuccess: (data: AxiosResponse["data"]) => notifySuccess(data.message),
+    onError: (error: unknown) => notifyError(error),
+  });
+}
+
 export function useChangeEmail() {
   return useMutation({
     mutationKey: ["change-email"],

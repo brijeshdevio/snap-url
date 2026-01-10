@@ -14,6 +14,7 @@ import { ApiResponse } from '@/utils/api-response';
 import { UserService } from './user.service';
 import { ChangeEmailDto } from './dto/change-email.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { UpdateDto } from './dto/update.dto';
 
 @UseGuards(AuthGuard)
 @Controller('users')
@@ -27,6 +28,19 @@ export class UserController {
   ): Promise<Response> {
     const user = await this.userService.findMe(req.user.id);
     return ApiResponse(200, { data: user })(res);
+  }
+
+  @Patch('me')
+  async handleUpdateProfile(
+    @Req() req: { user: { id: string } },
+    @Body() body: UpdateDto,
+    @Res() res: Response,
+  ): Promise<Response> {
+    const user = await this.userService.update(req.user.id, body);
+    return ApiResponse(200, {
+      data: user,
+      message: 'Profile updated successfully',
+    })(res);
   }
 
   @Patch('change-email')
