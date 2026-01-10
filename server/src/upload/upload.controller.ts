@@ -67,6 +67,7 @@ export class UploadController {
 
       return ApiResponse(200, {
         data: { ...response, imageId: imageTokenHash },
+        message: 'Image uploaded successfully',
       })(res);
     } catch (error) {
       this.logger.error(`Upload failed: ${error.message}`, error.stack);

@@ -51,6 +51,24 @@ export class UserService {
     throw new UnauthorizedException('You are not authorized');
   }
 
+  async updateAvatar(userId: string, avatarUrl: string): Promise<User> {
+    const user = await this.userModel
+      .findByIdAndUpdate(
+        userId,
+        { avatar: avatarUrl },
+        {
+          new: true,
+        },
+      )
+      .select('avatar')
+      .lean();
+    if (user) {
+      return user;
+    }
+
+    throw new UnauthorizedException('You are not authorized');
+  }
+
   async checkAndAddStorageSize(userId: string, size: number): Promise<void> {
     const user = await this.userModel.findById(userId).lean();
 

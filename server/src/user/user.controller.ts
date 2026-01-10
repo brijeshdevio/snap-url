@@ -15,6 +15,7 @@ import { UserService } from './user.service';
 import { ChangeEmailDto } from './dto/change-email.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { UpdateDto } from './dto/update.dto';
+import { UpdateAvatarDto } from './dto/update-avatar.dto';
 
 @UseGuards(AuthGuard)
 @Controller('users')
@@ -40,6 +41,19 @@ export class UserController {
     return ApiResponse(200, {
       data: user,
       message: 'Profile updated successfully',
+    })(res);
+  }
+
+  @Patch('me/avatar')
+  async handleUpdateAvatar(
+    @Req() req: { user: { id: string } },
+    @Body() body: UpdateAvatarDto,
+    @Res() res: Response,
+  ): Promise<Response> {
+    const user = await this.userService.updateAvatar(req.user.id, body.avatar);
+    return ApiResponse(200, {
+      data: user,
+      message: 'Avatar updated successfully',
     })(res);
   }
 

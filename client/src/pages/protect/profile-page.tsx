@@ -1,10 +1,15 @@
 import { Pen } from "lucide-react";
 import { useAuth } from "@/app/providers/AuthProvider";
-import { InputField } from "@/components";
+import { InputField, UpdateAvatarModal } from "@/components";
 import { useUpdateProfile } from "@/queries/user.query";
+import { useModal } from "@/app/providers/modal-provider";
 
 function AvatarSection() {
   const { user } = useAuth();
+  const { openModal } = useModal();
+  const imageUrl = import.meta.env.VITE_API_URL + "/images/" + user?.avatar;
+
+  const handleOpenModal = () => openModal(<UpdateAvatarModal />);
 
   return (
     <section className="mb-6">
@@ -16,16 +21,16 @@ function AvatarSection() {
           </p>
           <div className="avatar avatar-placeholder mt-3 relative w-fit">
             <div className="absolute right-[-10px] top-[-10px]">
-              <button className="dropdown-toggle btn btn-text btn-circle dropdown-open:bg-base-content/10 dropdown-open:text-base-content">
+              <button
+                className="dropdown-toggle btn btn-text btn-circle dropdown-open:bg-base-content/10 dropdown-open:text-base-content"
+                onClick={handleOpenModal}
+              >
                 <Pen size={20} />
               </button>
             </div>
-            {!user?.avatar ? (
+            {user?.avatar ? (
               <div className="size-16 rounded-full">
-                <img
-                  src="https://cdn.flyonui.com/fy-assets/avatar/avatar-1.png"
-                  alt="avatar"
-                />
+                <img src={`${imageUrl}`} alt={`${user.name}'s avatar`} />
               </div>
             ) : (
               <div className="bg-neutral text-neutral-content w-14 rounded-full">

@@ -20,3 +20,8 @@ export type ModalContextType = {
   modals: ModalsType;
   modal: (key: keyof ModalsType, value: boolean) => void;
 };
+
+export type AvatarForm = {
+  file: File;
+  secret: string;
+};

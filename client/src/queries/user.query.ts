@@ -2,6 +2,8 @@ import { useMutation } from "@tanstack/react-query";
 import type { AxiosResponse } from "axios";
 import { UserService } from "@/services/user.service";
 import { notifyError, notifySuccess } from "@/utils";
+import { useUploadImage } from "./playground.query";
+import { useEffect } from "react";
 
 export function useUpdateProfile() {
   return useMutation({
@@ -10,6 +12,38 @@ export function useUpdateProfile() {
     onSuccess: (data: AxiosResponse["data"]) => notifySuccess(data.message),
     onError: (error: unknown) => notifyError(error),
   });
+}
+
+export function useUpdateAvatar() {
+  const X_UPLOAD_TOKEN = import.meta.env.VITE_UPLOAD_TOKEN;
+  const {
+    mutate: uploadImage,
+    isPending: isUploading,
+    data: uploadData,
+  } = useUploadImage();
+
+  const { mutate: updateAvatar, isPending: isUpdating } = useMutation({
+    mutationKey: ["update-avatar"],
+    mutationFn: UserService.avatar,
+    onSuccess: (data: AxiosResponse["data"]) => notifySuccess(data.message),
+    onError: (error: unknown) => notifyError(error),
+  });
+
+  function handleUpload(file: File) {
+    uploadImage({ file, secret: X_UPLOAD_TOKEN });
+  }
+
+  useEffect(() => {
+    if (uploadData?.data?.url) {
+      const avatarUrl = uploadData.data.url?.split("images/")[1];
+      updateAvatar({ avatar: avatarUrl });
+    }
+  }, [uploadData, updateAvatar]);
+
+  return {
+    isLoading: isUploading || isUpdating,
+    handleUpload,
+  };
 }
 
 export function useChangeEmail() {

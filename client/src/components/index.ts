@@ -6,3 +6,5 @@ export * from "./ui/Loader";
 export * from "./modals/modal-root";
 export * from "./ui/markdown-preview";
 export * from "./ui/tool-tip";
+export * from "./modals/new-secret-modal";
+export * from "./modals/update-avatar-modal";

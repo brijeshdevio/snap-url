@@ -1,7 +1,8 @@
+import type { AvatarForm } from "@/types";
 import { http } from "./http";
 
 export const playgroundService = {
-  upload: async (data: any) =>
+  upload: async (data: AvatarForm) =>
     (
       await http.post(
         "/uploads",

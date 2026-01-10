@@ -2,7 +2,7 @@ import { Pen, Plus, Trash } from "lucide-react";
 // import { apiKeys } from "@/dummy";
 import { useDeleteSecret, useGetAllSecret } from "@/queries/key.query";
 import { useModal } from "@/app/providers/modal-provider";
-import { NewSecretModal } from "@/components/modals/new-secret-modal";
+import { NewSecretModal } from "@/components/";
 import { formatDate } from "@/utils";
 import { Loader } from "@/components";
 
@@ -96,7 +96,7 @@ function ApiKeySection() {
             <th>CREATED</th>
             <th>LAST USED</th>
             <th>EXPIRES</th>
-            <th>USAGE (24HRS)</th>
+            <th>USAGE</th>
             <th></th>
           </tr>
         </thead>
