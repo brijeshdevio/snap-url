@@ -8,6 +8,7 @@ import {
   HomePage,
   ImagePage,
   LoginPage,
+  NotFoundPage,
   PlaygroundPage,
   ProfilePage,
   SettingPage,
@@ -39,6 +40,7 @@ export function AppRoutes() {
             <Route path="/login" element={<LoginPage />} />
           </Route>
         </Route>
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
   );

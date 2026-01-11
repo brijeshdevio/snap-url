@@ -4,6 +4,7 @@ export * from "./auth/login-page";
 export * from "./protect/dashboard-page";
 export * from "./protect/image-page";
 export * from "./public/playground-page";
+export * from "./public/not-found-page";
 export * from "./protect/profile-page";
 export * from "./public/docs-page";
 export * from "./protect/setting-page";
