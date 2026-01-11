@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   UnauthorizedException,
@@ -6,6 +7,8 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from '@/entities/user.entity';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import argon2 from 'argon2';
 
 @Injectable()
 export class UserService {
@@ -62,5 +65,34 @@ export class UserService {
     }
 
     await this.userModel.findOneAndUpdate({ _id: userId }, { email: newEmail });
+  }
+
+  async changePassword(
+    userId: string,
+    changePasswordDto: ChangePasswordDto,
+  ): Promise<void> {
+    const { oldPassword, newPassword, confirmPassword } = changePasswordDto;
+
+    if (newPassword !== confirmPassword) {
+      throw new BadRequestException('Passwords do not match');
+    }
+
+    const user = await this.userModel.findById(userId).select('password');
+    if (!user) {
+      throw new UnauthorizedException('You are not authorized');
+    }
+
+    if (user?.password) {
+      const isValidPassword = await argon2.verify(user.password, oldPassword);
+      if (!isValidPassword) {
+        throw new BadRequestException('Old password is incorrect');
+      }
+    }
+
+    const hashedPassword = await argon2.hash(newPassword);
+    await this.userModel.findOneAndUpdate(
+      { _id: userId },
+      { password: hashedPassword },
+    );
   }
 }

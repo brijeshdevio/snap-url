@@ -12,6 +12,7 @@ import { AuthGuard } from '@/common/guard/auth.guard';
 import { ApiResponse } from '@/utils/api-response';
 import { UserService } from './user.service';
 import { ChangeEmailDto } from './dto/change-email.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @UseGuards(AuthGuard)
 @Controller('users')
@@ -35,5 +36,15 @@ export class UserController {
   ): Promise<Response> {
     await this.userService.changeEmail(req.user.id, body.email);
     return ApiResponse(200, { message: 'Email changed successfully' })(res);
+  }
+
+  @Patch('change-password')
+  async handleChangePassword(
+    @Req() req: { user: { id: string } },
+    @Body() body: ChangePasswordDto,
+    @Res() res: Response,
+  ): Promise<Response> {
+    await this.userService.changePassword(req.user.id, body);
+    return ApiResponse(200, { message: 'Password changed successfully' })(res);
   }
 }

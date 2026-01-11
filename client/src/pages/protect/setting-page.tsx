@@ -1,21 +1,25 @@
 import { useAuth } from "@/app/providers/AuthProvider";
 import { InputField } from "@/components";
-import { useChangeEmail } from "@/queries/user.query";
+import { useChangeEmail, useChangePassword } from "@/queries/user.query";
+import type { ChangePasswordForm } from "@/types/user";
 
 const changePasswordForm = [
   {
     label: "Current Password",
     type: "password",
+    name: "oldPassword",
     placeholder: "Enter your current password",
   },
   {
     label: "New Password",
     type: "password",
+    name: "newPassword",
     placeholder: "Enter a new password",
   },
   {
     label: "Confirm New Password",
     type: "password",
+    name: "confirmPassword",
     placeholder: "Confirm your new password",
   },
 ];
@@ -73,6 +77,16 @@ function ChangeEmailSection() {
 }
 
 function ChangePasswordSection() {
+  const { mutate: changePassword, isPending } = useChangePassword();
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    changePassword(
+      Object.fromEntries(formData) as unknown as ChangePasswordForm
+    );
+  };
+
   return (
     <section className="mb-6">
       <div className="card bg-base-200">
@@ -82,13 +96,25 @@ function ChangePasswordSection() {
             For security, we recommend using a long, unique password. After
             updating, you will be logged out of all other active sessions.
           </p>
-          <form className="flex flex-col gap-3 mt-2">
+          <form className="flex flex-col gap-3 mt-2" onSubmit={handleSubmit}>
             {changePasswordForm.map((field, index) => (
-              <InputField key={index} {...field} />
+              <InputField key={index} {...field} required />
             ))}
             <div>
-              <button type="submit" className="btn btn-primary">
-                Change Password
+              <button
+                type="submit"
+                className="btn btn-primary btn-gradient"
+                disabled={isPending}
+              >
+                {isPending ? (
+                  <>
+                    <span className="loading loading-spinner"></span>
+                  </>
+                ) : (
+                  <>
+                    <span>Change Password</span>
+                  </>
+                )}
               </button>
             </div>
           </form>

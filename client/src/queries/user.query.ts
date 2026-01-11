@@ -11,3 +11,12 @@ export function useChangeEmail() {
     onError: (error: unknown) => notifyError(error),
   });
 }
+
+export function useChangePassword() {
+  return useMutation({
+    mutationKey: ["change-password"],
+    mutationFn: UserService.changePassword,
+    onSuccess: (data: AxiosResponse["data"]) => notifySuccess(data.message),
+    onError: (error: unknown) => notifyError(error),
+  });
+}
