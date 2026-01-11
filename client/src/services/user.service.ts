@@ -7,4 +7,5 @@ export const UserService = {
     (await http.patch("/users/change-email", formData)).data,
   changePassword: async (formData: ChangePasswordForm) =>
     (await http.patch("/users/change-password", formData)).data,
+  deleteAccount: async () => (await http.delete("/users/delete-account")).data,
 };

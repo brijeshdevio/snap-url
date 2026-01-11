@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Patch,
   Req,
@@ -46,5 +47,16 @@ export class UserController {
   ): Promise<Response> {
     await this.userService.changePassword(req.user.id, body);
     return ApiResponse(200, { message: 'Password changed successfully' })(res);
+  }
+
+  @Delete('delete-account')
+  async handleDeleteAccount(
+    @Req() req: { user: { id: string } },
+    @Res() res: Response,
+  ): Promise<Response> {
+    await this.userService.deleteAccount(req.user.id);
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+    return ApiResponse(200, { message: 'Account deleted successfully' })(res);
   }
 }

@@ -9,11 +9,15 @@ import { Model } from 'mongoose';
 import { User } from '@/entities/user.entity';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import argon2 from 'argon2';
+import { Secret } from '@/entities/secret.entity';
+import { Image } from '@/entities/image.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
+    @InjectModel(Secret.name) private readonly secretModel: Model<Secret>,
+    @InjectModel(Image.name) private readonly imageModel: Model<Image>,
   ) {}
 
   async findMe(userId: string): Promise<User> {
@@ -93,6 +97,19 @@ export class UserService {
     await this.userModel.findOneAndUpdate(
       { _id: userId },
       { password: hashedPassword },
+    );
+  }
+
+  async deleteAccount(userId: string): Promise<void> {
+    const isDeleted = await this.userModel.findOneAndDelete({ _id: userId });
+    if (isDeleted) {
+      await this.secretModel.deleteMany({ user: userId });
+      await this.imageModel.deleteMany({ user: userId });
+      return;
+    }
+
+    throw new UnauthorizedException(
+      'You are not authorized to delete this account',
     );
   }
 }

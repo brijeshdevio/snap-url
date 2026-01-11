@@ -1,6 +1,10 @@
 import { useAuth } from "@/app/providers/AuthProvider";
 import { InputField } from "@/components";
-import { useChangeEmail, useChangePassword } from "@/queries/user.query";
+import {
+  useChangeEmail,
+  useChangePassword,
+  useDeleteAccount,
+} from "@/queries/user.query";
 import type { ChangePasswordForm } from "@/types/user";
 
 const changePasswordForm = [
@@ -39,7 +43,7 @@ function ChangeEmailSection() {
       <div className="card bg-base-200">
         <div className="card-body">
           <h2 className="text-xl font-bold text-white">Account Settings</h2>
-          <p className="opacity-90">
+          <p className="opacity-90 text-sm">
             Update your account email address. Please note that changing your
             email will require you to re-verify your account.
           </p>
@@ -92,7 +96,7 @@ function ChangePasswordSection() {
       <div className="card bg-base-200">
         <div className="card-body">
           <h2 className="text-xl font-bold text-white">Password</h2>
-          <p className="opacity-90">
+          <p className="opacity-90 text-sm">
             For security, we recommend using a long, unique password. After
             updating, you will be logged out of all other active sessions.
           </p>
@@ -125,19 +129,43 @@ function ChangePasswordSection() {
 }
 
 function DangerZoneSection() {
+  const { mutate: deleteAccount, isPending } = useDeleteAccount();
+
+  function handleDelete() {
+    const isConfirmed = window.confirm(
+      "Are you sure you want to delete your account?"
+    );
+    if (isConfirmed) {
+      deleteAccount();
+    }
+  }
+
   return (
     <section className="mb-6 pb-10">
       <div className="card bg-error/10 border border-error/50">
-        <div className="card-body space-y-2">
+        <div className="card-body space-y-1">
           <h2 className="text-xl font-bold text-error">Danger Zone</h2>
-          <p className="text-error/80">
+          <p className="text-error/80 text-sm">
             Deleting your account is a permanent action. All your API keys,
             uploaded images, and account data will be irretrievably lost. Please
             be certain before proceeding.
           </p>
           <div>
-            <button className="btn btn-error btn-gradient">
-              Delete Account
+            <button
+              className="btn btn-error btn-gradient"
+              type="button"
+              onClick={handleDelete}
+              disabled={isPending}
+            >
+              {isPending ? (
+                <>
+                  <span className="loading loading-spinner"></span>
+                </>
+              ) : (
+                <>
+                  <span>Delete Account</span>
+                </>
+              )}
             </button>
           </div>
         </div>

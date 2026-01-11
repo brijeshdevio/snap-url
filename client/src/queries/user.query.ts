@@ -20,3 +20,17 @@ export function useChangePassword() {
     onError: (error: unknown) => notifyError(error),
   });
 }
+
+export function useDeleteAccount() {
+  return useMutation({
+    mutationKey: ["delete-account"],
+    mutationFn: UserService.deleteAccount,
+    onSuccess: (data: AxiosResponse["data"]) => {
+      notifySuccess(data.message);
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 2000);
+    },
+    onError: (error: unknown) => notifyError(error),
+  });
+}
