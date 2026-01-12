@@ -10,4 +10,6 @@ export const envConfig = {
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET!,
   API_URL: process.env.API_URL!,
   FRONTEND_URL: process.env.FRONTEND_URL!,
+  EMAIL_USERNAME: process.env.EMAIL_USERNAME!,
+  EMAIL_PASSWORD: process.env.EMAIL_PASSWORD!,
 };

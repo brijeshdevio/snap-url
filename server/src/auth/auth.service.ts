@@ -12,6 +12,7 @@ import argon2 from 'argon2';
 import { User } from '@/entities/user.entity';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
+import { verifyEmail } from '@/email-templates';
 
 type ProviderData = {
   authProvider: 'github' | 'google';
@@ -31,6 +32,11 @@ export class AuthService {
     return await this.jwtService.signAsync(payload);
   }
 
+  private generateEmailVerificationToken(): string {
+    const token = crypto.randomBytes(32).toString('hex');
+    return crypto.createHash('sha256').update(token).digest('hex');
+  }
+
   private generateRefreshToken(): string {
     const token = crypto.randomBytes(64).toString('hex');
     return crypto.createHash('sha256').update(token).digest('hex');
@@ -39,7 +45,19 @@ export class AuthService {
   async signup(data: SignupDto): Promise<any> {
     try {
       data.password = await argon2.hash(data.password);
-      await this.userModel.create(data);
+      const emailVerificationToken = this.generateEmailVerificationToken();
+      const emailVerificationExpires = new Date();
+      emailVerificationExpires.setMinutes(
+        emailVerificationExpires.getMinutes() + 5,
+      );
+
+      await this.userModel.create({
+        ...data,
+        emailVerificationToken,
+        emailVerificationExpires,
+        isEmailVerified: false,
+      });
+      await verifyEmail(data.email, data.name, emailVerificationToken);
       return { name: data.name, email: data.email };
     } catch (error: unknown) {
       const CONFLICT_ERROR_CODE = 11000;
@@ -51,10 +69,31 @@ export class AuthService {
     }
   }
 
+  async verifyEmail(token: string): Promise<User> {
+    const user = await this.userModel.findOneAndUpdate(
+      {
+        emailVerificationToken: token,
+        emailVerificationExpires: { $gt: new Date() },
+        isEmailVerified: false,
+      },
+      { isEmailVerified: true, emailVerificationToken: null },
+    );
+
+    if (user) {
+      return user;
+    }
+
+    throw new UnauthorizedException('Invalid verification token.');
+  }
+
   async login(data: LoginDto): Promise<any> {
     const user = await this.userModel.findOne({ email: data.email });
     if (!user) {
       throw new UnauthorizedException('Invalid credentials.');
+    }
+
+    if (!user.isEmailVerified) {
+      throw new ForbiddenException('Email not verified.');
     }
 
     if (!user.password) {
@@ -119,6 +158,7 @@ export class AuthService {
     const refreshToken = this.generateRefreshToken();
     const accessToken = await this.generateToken({ id: String(newUser._id) });
     newUser.refreshToken = refreshToken;
+    newUser.isEmailVerified = true;
 
     await newUser.save();
     const expiresIn = 3600;

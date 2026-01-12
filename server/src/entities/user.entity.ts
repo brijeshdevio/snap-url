@@ -38,6 +38,15 @@ export class User {
 
   @Prop({ type: String })
   refreshToken: string;
+
+  @Prop({ type: String, default: null })
+  emailVerificationToken: string | null;
+
+  @Prop({ type: Boolean, default: false })
+  isEmailVerified: boolean;
+
+  @Prop({ type: Date, default: null })
+  emailVerificationExpires: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

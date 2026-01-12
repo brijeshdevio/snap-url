@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   Req,
   Res,
@@ -28,6 +29,15 @@ export class AuthController {
     const user = await this.authService.signup(body);
     const message = 'User created successfully';
     return ApiResponse(201, { data: user, message })(res);
+  }
+
+  @Get('verify-email/:token')
+  async handleVerifyEmail(
+    @Param('token') token: string,
+    @Res() res: Response,
+  ): Promise<Response> {
+    await this.authService.verifyEmail(token);
+    return ApiResponse(200, { message: 'Email verified successfully' })(res);
   }
 
   @Post('login')
@@ -105,6 +115,6 @@ export class AuthController {
       maxAge: 24 * 60 * 60 * 1000,
     });
 
-    res.redirect(envConfig.FRONTEND_URL);
+    res.redirect(envConfig.FRONTEND_URL + '/dashboard');
   }
 }
