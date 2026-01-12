@@ -20,7 +20,7 @@ export function UpdateAvatarModal() {
   return (
     <div className="card w-full sm:w-[600px] border border-white/5 shadow-xl">
       <div className="card-body">
-        <div className="text-center cursor-pointer p-12">
+        <div className="text-center p-12">
           <p className="text-base-content/50 mb-3 text-sm">
             Choose a file with a size up to 2MB.
           </p>
@@ -62,6 +62,7 @@ export function UpdateAvatarModal() {
               <button
                 className="btn btn-primary mt-2 btn-gradient"
                 type="submit"
+                disabled={isLoading}
               >
                 {isLoading ? (
                   <>
