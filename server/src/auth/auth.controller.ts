@@ -31,6 +31,16 @@ export class AuthController {
     return ApiResponse(201, { data: user, message })(res);
   }
 
+  @Post('resend-email')
+  async handleResendEmail(
+    @Body() body,
+    @Res() res: Response,
+  ): Promise<Response> {
+    const user = await this.authService.resendEmail(body.email);
+    const message = 'Email sent successfully';
+    return ApiResponse(200, { data: user, message })(res);
+  }
+
   @Get('verify-email/:token')
   async handleVerifyEmail(
     @Param('token') token: string,

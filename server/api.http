@@ -7,9 +7,18 @@ POST http://localhost:4000/api/auth/signup
 Content-Type: application/json
 
 {
-  "name": "Brijesh",
-  "email":"confidentcurran2@freethecookies.com",
+  "name": "Romanticmccarthy",
+  "email":"romanticmccarthy1@getsafesurfer.com",
   "password": "12345678"
+}
+
+
+### POST - /api/auth/resend-email
+POST http://localhost:4000/api/auth/resend-email
+Content-Type: application/json
+
+{
+  "email":"romanticmccarthy1@getsafesurfer.com"
 }
 
 

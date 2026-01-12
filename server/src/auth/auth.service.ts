@@ -69,6 +69,27 @@ export class AuthService {
     }
   }
 
+  async resendEmail(email: string): Promise<any> {
+    const emailVerificationToken = this.generateEmailVerificationToken();
+    const emailVerificationExpires = new Date();
+    emailVerificationExpires.setMinutes(
+      emailVerificationExpires.getMinutes() + 5,
+    );
+    const user = await this.userModel.findOneAndUpdate(
+      { email, isEmailVerified: false },
+      {
+        emailVerificationToken,
+        emailVerificationExpires,
+      },
+    );
+    if (user) {
+      await verifyEmail(user.email, user.name, emailVerificationToken);
+      return { email: user.email, name: user.name };
+    }
+
+    throw new UnauthorizedException('Invalid credentials.');
+  }
+
   async verifyEmail(token: string): Promise<User> {
     const user = await this.userModel.findOneAndUpdate(
       {
