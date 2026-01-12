@@ -5,14 +5,18 @@ import { ProtectLayout } from "../layouts/ProtectLayout";
 import {
   DashboardPage,
   DocsPage,
+  ForgetPasswordPage,
   HomePage,
   ImagePage,
   LoginPage,
   NotFoundPage,
   PlaygroundPage,
   ProfilePage,
+  ResetPasswordPage,
+  SendVerifyEmailPage,
   SettingPage,
   SignupPage,
+  VerifyEmailPage,
 } from "@/pages";
 import ProtectRoute from "./ProtectRoute";
 import AuthRoute from "./AuthRoute";
@@ -38,6 +42,14 @@ export function AppRoutes() {
           <Route element={<AuthRoute />}>
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route
+              path="/send-verify-email"
+              element={<SendVerifyEmailPage />}
+            />
+            <Route path="/resend-email" element={<SendVerifyEmailPage />} />
+            <Route path="/verify-email" element={<VerifyEmailPage />} />
+            <Route path="/forget-password" element={<ForgetPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
           </Route>
         </Route>
         <Route path="*" element={<NotFoundPage />} />

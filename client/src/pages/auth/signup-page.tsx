@@ -3,6 +3,7 @@ import { ArrowRight, Github } from "lucide-react";
 import { InputField, type InputFieldProps } from "@/components";
 import { useSignup } from "@/queries/auth.query";
 import { isAxiosError } from "axios";
+import type { SignupForm } from "@/types/auth";
 
 const formFields = [
   {
@@ -32,7 +33,7 @@ export function SignupPage() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    mutate(Object.fromEntries(formData));
+    mutate(Object.fromEntries(formData) as unknown as SignupForm);
   };
 
   return (

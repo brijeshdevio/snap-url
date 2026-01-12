@@ -3,6 +3,7 @@ import { ArrowRight, Github } from "lucide-react";
 import { InputField, type InputFieldProps } from "@/components";
 import { useLogin } from "@/queries/auth.query";
 import { isAxiosError } from "axios";
+import type { LoginForm } from "@/types/auth";
 
 const formFields = [
   {
@@ -26,7 +27,7 @@ export function LoginPage() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    mutate(Object.fromEntries(formData));
+    mutate(Object.fromEntries(formData) as unknown as LoginForm);
   };
 
   return (
@@ -80,6 +81,11 @@ export function LoginPage() {
           )}
         </button>
       </form>
+      <div className="opacity-70 text-center">
+        <Link to="/forget-password" className="text-primary link">
+          Forget password?
+        </Link>
+      </div>
 
       <div className="opacity-70 text-center">
         <p>

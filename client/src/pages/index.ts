@@ -8,3 +8,7 @@ export * from "./public/not-found-page";
 export * from "./protect/profile-page";
 export * from "./public/docs-page";
 export * from "./protect/setting-page";
+export * from "./public/send-verify-email-page";
+export * from "./public/verify-email-page";
+export * from "./public/forget-password-page";
+export * from "./public/reset-password-page";
