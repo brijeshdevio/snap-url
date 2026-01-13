@@ -8,9 +8,10 @@ function PlaygroundSection() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    mutate(Object.fromEntries(formData));
+    mutate(
+      Object.fromEntries(formData) as unknown as { file: File; secret: string }
+    );
   };
-  console.log(data);
 
   return (
     <div className="w-full">
