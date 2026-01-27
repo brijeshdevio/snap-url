@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  Param,
+  Patch,
   Post,
   Req,
   Res,
@@ -38,5 +41,27 @@ export class ApiKeysController {
   async handleGetKeys(@Req() req: CurrentUser, @Res() res: Response) {
     const apiKeys = await this.apiKeysService.getAllKeys(req.user.id);
     return apiResponse(200, { data: { apiKeys } })(res);
+  }
+
+  @Patch(':apiKeyId')
+  async handleRevokeKey(
+    @Req() req: CurrentUser,
+    @Param('apiKeyId') apiKeyId: string,
+    @Res() res: Response,
+  ): Promise<Response> {
+    await this.apiKeysService.revokeKey(req.user.id, apiKeyId);
+    const message = 'Api Key revoked successfully.';
+    return apiResponse(200, { message })(res);
+  }
+
+  @Delete(':apiKeyId')
+  async handleDeleteKey(
+    @Req() req: CurrentUser,
+    @Param('apiKeyId') apiKeyId: string,
+    @Res() res: Response,
+  ): Promise<Response> {
+    await this.apiKeysService.deleteKey(req.user.id, apiKeyId);
+    const message = 'Api Key deleted successfully.';
+    return apiResponse(200, { message })(res);
   }
 }

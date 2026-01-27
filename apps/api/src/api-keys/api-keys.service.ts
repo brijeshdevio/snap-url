@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { generateApiKey } from 'src/utils';
 // types
@@ -61,5 +65,34 @@ export class ApiKeysService {
       ...key,
       tokenHash: this.removeToken(key.tokenHash),
     }));
+  }
+
+  async revokeKey(userId: string, apiKeyId: string): Promise<void> {
+    try {
+      await this.prisma.apiKey.update({
+        where: { id: apiKeyId, userId, revoked: false },
+        data: { revoked: true },
+      });
+    } catch (error: unknown) {
+      const NOT_FOUND_ERROR = 'P2025';
+      const err = error as { code: string };
+      if (err?.code === NOT_FOUND_ERROR) {
+        throw new BadRequestException(`API key with id ${apiKeyId} not found.`);
+      }
+      throw error;
+    }
+  }
+
+  async deleteKey(userId: string, apiKeyId: string): Promise<void> {
+    try {
+      await this.prisma.apiKey.delete({ where: { userId, id: apiKeyId } });
+    } catch (error: unknown) {
+      const NOT_FOUND_ERROR = 'P2025';
+      const err = error as { code: string };
+      if (err?.code === NOT_FOUND_ERROR) {
+        throw new BadRequestException(`API key with id ${apiKeyId} not found.`);
+      }
+      throw error;
+    }
   }
 }
