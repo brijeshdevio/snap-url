@@ -24,6 +24,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   refreshTokens RefreshToken[]
+  apiKeys ApiKey[]
 }
 
 model RefreshToken {
@@ -31,6 +32,19 @@ model RefreshToken {
   hash      String   @unique
   userId    String
   expiresAt DateTime
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model ApiKey {
+  id        String   @id @default(cuid())
+  name      String
+  tokenHash String   @unique
+  userId    String
   revoked   Boolean  @default(false)
   createdAt DateTime @default(now())
 
