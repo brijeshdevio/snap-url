@@ -12,8 +12,8 @@ export async function comparePassword(
   return await argon.verify(hashedPasswod, password);
 }
 
-export async function generateToken(): Promise<string> {
-  return await crypto
+export function generateToken(): string {
+  return crypto
     .createHash('sha256')
     .update(Math.random().toString())
     .digest('hex');
