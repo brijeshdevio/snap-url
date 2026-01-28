@@ -11,7 +11,7 @@ import { JwtGuard, ZodValidationPipe } from 'src/common';
 import { apiResponse, clearCookie, setCookie } from 'src/utils';
 import { DAY } from 'src/constants';
 import { AuthService } from './auth.service';
-import { RefreshTokenGuard } from './guard/refresh-token.guard';
+import { RefreshTokenGuard } from './guards/refresh-token.guard';
 import { LoginSchema, RegisterSchema } from './dto';
 // types
 import type { Response } from 'express';

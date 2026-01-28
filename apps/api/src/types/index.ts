@@ -13,6 +13,13 @@ export type CurrentUser = {
   };
 };
 
+export type FileUploadAuth = {
+  apiKey: {
+    id: string;
+    userId: string;
+  };
+};
+
 export type ApiKeys = {
   apiKeys: Omit<ApiKey, 'userId'>[];
   pagination: {
@@ -24,3 +31,11 @@ export type ApiKeys = {
     hasPrev: boolean;
   };
 };
+
+export interface Image {
+  id?: string;
+  name: string;
+  imgToken?: string;
+  size: number;
+  mimeType: string;
+}

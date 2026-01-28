@@ -1,14 +1,15 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { generateApiKey } from 'src/utils';
 // types
 import type { ApiKey } from 'src/generated/prisma/client';
+import type { ApiKeys } from 'src/types';
 import type { CreateApiKeyDto, QueryApiKeyDto, UpdateApiKeyDto } from './dto';
-import { ApiKeys } from 'src/types';
 
 @Injectable()
 export class ApiKeysService {
@@ -149,5 +150,20 @@ export class ApiKeysService {
       }
       throw error;
     }
+  }
+
+  async verifyToken(token: string): Promise<{ id: string; userId: string }> {
+    const apiKey = await this.prisma.apiKey.findUnique({
+      where: {
+        tokenHash: token,
+        revoked: false,
+      },
+      select: { id: true, userId: true },
+    });
+    if (apiKey) {
+      return apiKey;
+    }
+
+    throw new ForbiddenException(`Invalid or expired API Key.`);
   }
 }

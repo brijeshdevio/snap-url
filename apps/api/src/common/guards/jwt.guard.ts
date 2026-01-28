@@ -18,7 +18,7 @@ export class JwtGuard implements CanActivate {
       (request.cookies?.['access_token'] as string);
     const refreshToken = request.cookies?.['refresh_token'] as string;
 
-    if (!token || !refreshToken) {
+    if (!token) {
       throw new UnauthorizedException();
     }
 

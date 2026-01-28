@@ -7,5 +7,6 @@ import { ApiKeysController } from './api-keys.controller';
   imports: [PrismaModule],
   controllers: [ApiKeysController],
   providers: [ApiKeysService],
+  exports: [ApiKeysService],
 })
 export class ApiKeysModule {}

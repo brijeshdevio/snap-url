@@ -5,9 +5,9 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider        = "prisma-client"
-  output          = "../src/generated/prisma"
-  moduleFormat    = "cjs"
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
 }
 
 datasource db {
@@ -24,7 +24,8 @@ model User {
   updatedAt DateTime @updatedAt
 
   refreshTokens RefreshToken[]
-  apiKeys ApiKey[]
+  apiKeys       ApiKey[]
+  images        Image[]
 }
 
 model RefreshToken {
@@ -48,7 +49,25 @@ model ApiKey {
   revoked   Boolean  @default(false)
   createdAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  images Image[]
 
   @@index([userId])
+}
+
+model Image {
+  id        String    @id @default(cuid())
+  userId    String
+  apiKeyId  String
+  imgToken  String    @unique
+  name      String
+  mimeType  String
+  size      Int
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  apiKey ApiKey @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+
+  @@index([userId, apiKeyId])
 }
