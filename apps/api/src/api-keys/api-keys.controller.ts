@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -14,11 +15,15 @@ import {
 import { JwtGuard, ZodValidationPipe } from 'src/common';
 import { apiResponse } from 'src/utils';
 import { ApiKeysService } from './api-keys.service';
-import { CreateApiKeySchema } from './dto';
+import {
+  CreateApiKeySchema,
+  QueryApiKeySchema,
+  UpdateApiKeySchema,
+} from './dto';
 // types
 import type { Response } from 'express';
 import type { CurrentUser } from 'src/types';
-import type { CreateApiKeyDto, UpdateApiKeyDto } from './dto';
+import type { CreateApiKeyDto, QueryApiKeyDto, UpdateApiKeyDto } from './dto';
 
 @Controller('keys')
 @UseGuards(JwtGuard)
@@ -38,16 +43,23 @@ export class ApiKeysController {
   }
 
   @Get()
-  async handleGetKeys(@Req() req: CurrentUser, @Res() res: Response) {
-    const apiKeys = await this.apiKeysService.getAllKeys(req.user.id);
-    return apiResponse(200, { data: { apiKeys } })(res);
+  async handleGetKeys(
+    @Req() req: CurrentUser,
+    @Query(new ZodValidationPipe(QueryApiKeySchema)) query: QueryApiKeyDto,
+    @Res() res: Response,
+  ): Promise<Response> {
+    const { apiKeys, pagination } = await this.apiKeysService.getAllKeys(
+      req.user.id,
+      query,
+    );
+    return apiResponse(200, { data: { apiKeys, pagination } })(res);
   }
 
   @Patch(':apiKeyId')
   async handleRenameKey(
     @Req() req: CurrentUser,
     @Param('apiKeyId') apiKeyId: string,
-    @Body(new ZodValidationPipe(CreateApiKeySchema)) body: UpdateApiKeyDto,
+    @Body(new ZodValidationPipe(UpdateApiKeySchema)) body: UpdateApiKeyDto,
     @Res() res: Response,
   ): Promise<Response> {
     const apiKey = await this.apiKeysService.renameKey(

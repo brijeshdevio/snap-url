@@ -7,7 +7,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { generateApiKey } from 'src/utils';
 // types
 import type { ApiKey } from 'src/generated/prisma/client';
-import type { CreateApiKeyDto, UpdateApiKeyDto } from './dto';
+import type { CreateApiKeyDto, QueryApiKeyDto, UpdateApiKeyDto } from './dto';
+import { ApiKeys } from 'src/types';
 
 @Injectable()
 export class ApiKeysService {
@@ -59,12 +60,42 @@ export class ApiKeysService {
     return apiKey;
   }
 
-  async getAllKeys(userId: string): Promise<ApiKey[]> {
-    const keys = await this.prisma.apiKey.findMany({ where: { userId } });
-    return keys.map((key) => ({
-      ...key,
-      tokenHash: this.removeToken(key.tokenHash),
-    }));
+  async getAllKeys(userId: string, query: QueryApiKeyDto): Promise<ApiKeys> {
+    const page = parseInt(query.page || '1');
+    const limit = parseInt(query.limit || '10');
+    const skip = (page - 1) * limit;
+
+    const where = {
+      userId,
+      ...(query.q && { name: { contains: query.q } }),
+    };
+
+    const [keys, total] = await Promise.all([
+      this.prisma.apiKey.findMany({
+        where,
+        omit: { userId: true },
+        skip,
+        take: limit,
+      }),
+      this.prisma.apiKey.count({ where }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      apiKeys: keys.map((key) => ({
+        ...key,
+        tokenHash: this.removeToken(key.tokenHash),
+      })),
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
   }
 
   async renameKey(
