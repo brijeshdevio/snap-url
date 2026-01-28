@@ -7,7 +7,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { generateApiKey } from 'src/utils';
 // types
 import type { ApiKey } from 'src/generated/prisma/client';
-import type { CreateApiKeyDto } from './dto';
+import type { CreateApiKeyDto, UpdateApiKeyDto } from './dto';
 
 @Injectable()
 export class ApiKeysService {
@@ -67,6 +67,30 @@ export class ApiKeysService {
     }));
   }
 
+  async renameKey(
+    userId: string,
+    apiKeyId: string,
+    apiKeyData: UpdateApiKeyDto,
+  ): Promise<Omit<ApiKey, 'tokenHash'>> {
+    await this.validateNameUniqueness(userId, apiKeyData.name);
+
+    try {
+      const apiKey = await this.prisma.apiKey.update({
+        where: { userId, id: apiKeyId },
+        data: { name: apiKeyData.name },
+        omit: { tokenHash: true },
+      });
+      return apiKey;
+    } catch (error: unknown) {
+      const NOT_FOUND_CODE = 'P2025';
+      const err = error as { code: string };
+      if (err?.code === NOT_FOUND_CODE) {
+        throw new BadRequestException(`API key with id ${apiKeyId} not found.`);
+      }
+      throw error;
+    }
+  }
+
   async revokeKey(userId: string, apiKeyId: string): Promise<void> {
     try {
       await this.prisma.apiKey.update({
@@ -74,9 +98,9 @@ export class ApiKeysService {
         data: { revoked: true },
       });
     } catch (error: unknown) {
-      const NOT_FOUND_ERROR = 'P2025';
+      const NOT_FOUND_CODE = 'P2025';
       const err = error as { code: string };
-      if (err?.code === NOT_FOUND_ERROR) {
+      if (err?.code === NOT_FOUND_CODE) {
         throw new BadRequestException(`API key with id ${apiKeyId} not found.`);
       }
       throw error;
@@ -87,9 +111,9 @@ export class ApiKeysService {
     try {
       await this.prisma.apiKey.delete({ where: { userId, id: apiKeyId } });
     } catch (error: unknown) {
-      const NOT_FOUND_ERROR = 'P2025';
+      const NOT_FOUND_CODE = 'P2025';
       const err = error as { code: string };
-      if (err?.code === NOT_FOUND_ERROR) {
+      if (err?.code === NOT_FOUND_CODE) {
         throw new BadRequestException(`API key with id ${apiKeyId} not found.`);
       }
       throw error;

@@ -18,7 +18,7 @@ import { CreateApiKeySchema } from './dto';
 // types
 import type { Response } from 'express';
 import type { CurrentUser } from 'src/types';
-import type { CreateApiKeyDto } from './dto';
+import type { CreateApiKeyDto, UpdateApiKeyDto } from './dto';
 
 @Controller('keys')
 @UseGuards(JwtGuard)
@@ -44,6 +44,22 @@ export class ApiKeysController {
   }
 
   @Patch(':apiKeyId')
+  async handleRenameKey(
+    @Req() req: CurrentUser,
+    @Param('apiKeyId') apiKeyId: string,
+    @Body(new ZodValidationPipe(CreateApiKeySchema)) body: UpdateApiKeyDto,
+    @Res() res: Response,
+  ): Promise<Response> {
+    const apiKey = await this.apiKeysService.renameKey(
+      req.user.id,
+      apiKeyId,
+      body,
+    );
+    const message = 'Api Key renamed successfully.';
+    return apiResponse(200, { data: { apiKey }, message })(res);
+  }
+
+  @Patch(':apiKeyId/revoke')
   async handleRevokeKey(
     @Req() req: CurrentUser,
     @Param('apiKeyId') apiKeyId: string,
