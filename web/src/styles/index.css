@@ -1,0 +1,6 @@
+@import "tailwindcss";
+@plugin "flyonui" {
+  themes:
+    black --default,
+    spotify --prefersdark;
+}

@@ -1,0 +1,86 @@
+import { Link } from "react-router-dom";
+import { ArrowRight, Github } from "lucide-react";
+import { Button, Input } from "@/components/ui";
+import { useRegisterFacade } from "@/features/auth/auth.hooks";
+
+function Form() {
+  const { isPending, submit, handleSubmit, register, errors } =
+    useRegisterFacade();
+
+  return (
+    <form className="flex flex-col gap-3" onSubmit={handleSubmit(submit)}>
+      <Input
+        type="text"
+        label="Full Name"
+        placeholder="e.g. John Doe"
+        {...register("name")}
+        error={errors.name}
+      />
+      <Input
+        type="email"
+        label="Email Address"
+        placeholder="e.g. username@domain.com"
+        {...register("email")}
+        error={errors.email}
+      />
+      <Input
+        type="password"
+        label="Password"
+        placeholder="••••••••"
+        {...register("password")}
+        error={errors.password}
+      />
+      <Button
+        type="submit"
+        isLoading={isPending}
+        className="btn-gradient btn-primary"
+      >
+        <span>Create Account</span>
+        <ArrowRight size={20} />
+      </Button>
+    </form>
+  );
+}
+
+export function Register() {
+  return (
+    <section className="mx-auto flex w-full flex-col gap-5">
+      <div className="text-center">
+        <h1 className="mb-1 text-2xl">Create your account</h1>
+        <p className="text-md opacity-70">
+          Start your journey with the fastest, most reliable image upload API.
+        </p>
+      </div>
+
+      <div>
+        <Link
+          to={import.meta.env.VITE_API_URL + "/auth/github"}
+          className="btn btn-gradient w-full"
+        >
+          <Github size={20} />
+          <span>Continue with Github</span>
+        </Link>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <div className="divider"></div>
+        <span className="opacity-70">OR</span>
+        <div className="divider"></div>
+      </div>
+
+      <Form />
+
+      <div className="text-center opacity-70">
+        <p>
+          Already have an account?{" "}
+          <Link
+            to={"/login"}
+            className="link-animated hover:text-primary text-base-content"
+          >
+            Log in
+          </Link>
+        </p>
+      </div>
+    </section>
+  );
+}
