@@ -103,4 +103,26 @@ export class ImagesService {
     const file = await this.storageService.viewImage(image.storage);
     return file;
   }
+
+  async deleteImage(userId: string, imageId: string): Promise<Image> {
+    try {
+      const image = await this.prisma.image.findUnique({
+        where: { userId, id: imageId },
+      });
+      if (image && image.storage) {
+        await this.storageService.deleteImage(image.storage);
+        await this.prisma.image.delete({ where: { userId, id: imageId } });
+        return image;
+      }
+
+      throw new NotFoundException(`Image with id ${imageId} not found.`);
+    } catch (error: unknown) {
+      const NOT_FOUND_CODE = 'P2025';
+      const err = error as { code: string };
+      if (err?.code === NOT_FOUND_CODE) {
+        throw new NotFoundException(`Image with id ${imageId} not found.`);
+      }
+      throw error;
+    }
+  }
 }

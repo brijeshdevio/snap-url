@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -71,5 +72,17 @@ export class ImagesController {
     res.setHeader('Content-Type', 'image/jpeg');
     res.setHeader('Content-Length', buffer.length);
     res.end(buffer);
+  }
+
+  @Delete(':imageId')
+  @UseGuards(AuthGuard)
+  async handleDeleteImage(
+    @Req() req: CurrentUser,
+    @Param('imageId') imageId: string,
+    @Res() res: Response,
+  ): Promise<Response> {
+    const image = await this.imagesService.deleteImage(req.user.id, imageId);
+    const message = 'Image deleted successfully.';
+    return apiResponse(200, { data: { image }, message })(res);
   }
 }

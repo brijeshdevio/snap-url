@@ -1,5 +1,9 @@
 // storage.service.ts
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ID } from 'node-appwrite';
 import { InputFile } from 'node-appwrite/file';
 import { envConfig, storage } from 'src/config';
@@ -48,5 +52,12 @@ export class StorageService {
       fileId,
     });
     return file;
+  }
+
+  async deleteImage(fileId: string): Promise<void> {
+    await this.storage.deleteFile({
+      bucketId: envConfig.APPWRITE_BUCKET_ID,
+      fileId,
+    });
   }
 }
