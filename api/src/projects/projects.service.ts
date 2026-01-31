@@ -184,12 +184,13 @@ export class ProjectsService {
   async verifyUploadKey(
     keyHash: string,
   ): Promise<{ id: string; userId: string }> {
-    const project = await this.prisma.project.findUnique({
+    const project = await this.prisma.project.update({
       where: {
         keyHash,
         revoked: false,
         status: 'active',
       },
+      data: { usedCount: { increment: 1 } },
       select: { id: true, userId: true },
     });
 
