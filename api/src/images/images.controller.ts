@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Param,
   Post,
   Query,
   Req,
@@ -58,5 +59,17 @@ export class ImagesController {
     const userId = req.user.id;
     const data = await this.imagesService.getImages(userId, query);
     return apiResponse(200, { data })(res);
+  }
+
+  @Get(':signKey')
+  async handleViewImage(
+    @Param('signKey') signKey: string,
+    @Res() res: Response,
+  ): Promise<any> {
+    const data = await this.imagesService.viewImage(signKey);
+    const buffer = Buffer.from(data);
+    res.setHeader('Content-Type', 'image/jpeg');
+    res.setHeader('Content-Length', buffer.length);
+    res.end(buffer);
   }
 }

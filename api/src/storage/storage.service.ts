@@ -41,4 +41,12 @@ export class StorageService {
       throw new BadRequestException(`Failed to upload file: ${error?.message}`);
     }
   }
+
+  async viewImage(fileId: string): Promise<ArrayBuffer> {
+    const file = await this.storage.getFileView({
+      bucketId: envConfig.APPWRITE_BUCKET_ID,
+      fileId,
+    });
+    return file;
+  }
 }

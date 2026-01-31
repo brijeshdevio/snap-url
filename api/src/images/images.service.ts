@@ -1,9 +1,22 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { StorageService } from 'src/storage/storage.service';
 import { generateSignKey } from 'src/utils';
 import type { SaveImage } from 'src/types';
-import { QueryImageDto } from './dto';
+import type { QueryImageDto } from './dto';
+import { Image } from 'src/generated/prisma/client';
+
+type ImagesResponse = {
+  images: Omit<Image, 'userId' | 'storage'>[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+};
 
 @Injectable()
 export class ImagesService {
@@ -14,10 +27,10 @@ export class ImagesService {
 
   private async getSignKey(): Promise<string> {
     const signKey = generateSignKey();
-    const isUnique = await this.prisma.image.findUnique({
+    const existingSignKey = await this.prisma.image.findUnique({
       where: { signKey },
     });
-    if (!isUnique) {
+    if (existingSignKey) {
       return await this.getSignKey();
     }
     return signKey;
@@ -31,7 +44,6 @@ export class ImagesService {
     const { storage, ...uploadedImage } =
       await this.storageService.uploadImage(file);
     const signKey = await this.getSignKey();
-
     await this.prisma.image.create({
       data: {
         signKey,
@@ -44,7 +56,10 @@ export class ImagesService {
     return { ...uploadedImage, signKey };
   }
 
-  async getImages(userId: string, query: QueryImageDto) {
+  async getImages(
+    userId: string,
+    query: QueryImageDto,
+  ): Promise<ImagesResponse> {
     const page = parseInt(query.page || '1');
     const limit = parseInt(query.limit || '10');
     const skip = (page - 1) * limit;
@@ -77,5 +92,15 @@ export class ImagesService {
         hasPrev: page > 1,
       },
     };
+  }
+
+  async viewImage(signKey: string): Promise<ArrayBuffer> {
+    const image = await this.prisma.image.findUnique({ where: { signKey } });
+    if (!image) {
+      throw new NotFoundException(`Image not found.`);
+    }
+
+    const file = await this.storageService.viewImage(image.storage);
+    return file;
   }
 }
