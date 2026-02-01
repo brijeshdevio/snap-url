@@ -14,7 +14,10 @@ import type {
 } from './dto';
 
 type ProjectsResponse = {
-  projects: Omit<Project, 'userId' | 'keyHash'>[];
+  projects: Pick<
+    Project,
+    'id' | 'name' | 'status' | 'usedCount' | 'lastUsedAt' | 'expiredAt'
+  >[];
   pagination: {
     total: number;
     page: number;
@@ -84,7 +87,14 @@ export class ProjectsService {
     const [projects, total] = await Promise.all([
       this.prisma.project.findMany({
         where,
-        omit: { userId: true, keyHash: true },
+        select: {
+          id: true,
+          name: true,
+          status: true,
+          usedCount: true,
+          lastUsedAt: true,
+          expiredAt: true,
+        },
         skip,
         take: limit,
       }),
@@ -190,7 +200,7 @@ export class ProjectsService {
         revoked: false,
         status: 'active',
       },
-      data: { usedCount: { increment: 1 } },
+      data: { usedCount: { increment: 1 }, lastUsedAt: new Date() },
       select: { id: true, userId: true },
     });
 
