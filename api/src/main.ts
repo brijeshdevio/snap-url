@@ -12,6 +12,7 @@ async function bootstrap() {
   app.use(cookieParser());
   app.enableCors({
     origin: [originAllowed],
+    credentials: true,
   });
   app.use(helmet());
   await app.listen(process.env.PORT ?? 3000);
