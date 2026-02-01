@@ -3,36 +3,33 @@ import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 
 const navItems = [
-  { to: "/playground", label: "Playground" },
-  { to: "/docs", label: "Docs" },
+  { to: "/projects", label: "Projects" },
   { to: "/dashboard", label: "Dashboard" },
   { to: "/images", label: "Images" },
-  { to: "/settings", label: "Settings" },
-  { to: "/profile", label: "Profile" },
 ];
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <header className="w-full sticky top-0 bg-base-100 z-50 rounded-2xl shadow border-b border-white/10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16 w-full">
+    <header className="bg-base-100 sticky top-0 z-50 w-full rounded-2xl border-b border-white/10 shadow">
+      <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
+        <div className="flex h-16 w-full items-center justify-between">
           {/* Logo */}
           <div className="flex items-center justify-between max-md:w-1/4">
             <Link to="/" className="logo">
-              <span className="text-xl !font-extrabold">SnapURL</span>
+              <span className="text-xl">SnapURL</span>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-2">
+          <nav className="hidden space-x-2 md:flex">
             {navItems?.map((item) => (
               <NavLink
                 key={`nav-item-${item.label}`}
                 to={item.to}
                 className={({ isActive }) =>
-                  `dropdown-item text-sm ${isActive && "dropdown-active"}`
+                  `dropdown-item font-space-grotesk text-sm font-semibold ${isActive ? "text-primary dropdown-active" : "text-base-content/70"}`
                 }
               >
                 {item.label}
@@ -58,13 +55,13 @@ const Navbar = () => {
         {/* Mobile menu */}
         {isOpen && (
           <div className="md:hidden">
-            <div className="pb-3 space-y-1">
+            <div className="space-y-1 pb-3">
               {navItems?.map((item) => (
                 <NavLink
                   key={`mobile-menu-${item.label}`}
                   to={item.to}
                   className={({ isActive }) =>
-                    `dropdown-item text-sm ${isActive && "dropdown-active"}`
+                    `dropdown-item font-space-grotesk text-sm font-semibold ${isActive ? "text-primary dropdown-active" : "text-base-content/70"}`
                   }
                   onClick={() => setIsOpen(false)}
                 >
