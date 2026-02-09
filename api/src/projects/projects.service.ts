@@ -4,9 +4,9 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { generateKeyHash } from 'src/utils';
-import type { Project } from 'src/generated/prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
+import { generateKeyHash } from '../utils';
+import type { Project } from '../generated/prisma/client';
 import type {
   CreateProjectDto,
   QueryProjectDto,

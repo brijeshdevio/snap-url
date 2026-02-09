@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { StorageService } from 'src/storage/storage.service';
-import { generateSignKey } from 'src/utils';
-import type { SaveImage } from 'src/types';
+import { PrismaService } from '../prisma/prisma.service';
+import { StorageService } from '../storage/storage.service';
+import { generateSignKey } from '../utils';
+import type { SaveImage } from '../types';
 import type { QueryImageDto } from './dto';
-import { Image } from 'src/generated/prisma/client';
+import { Image } from '../generated/prisma/client';
 
 type ImagesResponse = {
   images: {

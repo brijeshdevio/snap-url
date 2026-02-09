@@ -4,9 +4,9 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { comparePassword, hashPassword } from 'src/utils';
-import type { User } from 'src/generated/prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
+import { comparePassword, hashPassword } from '../utils';
+import type { User } from '../generated/prisma/client';
 import type { LoginDto, RegisterDto } from './dto';
 
 @Injectable()

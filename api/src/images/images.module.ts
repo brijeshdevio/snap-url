@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { PrismaModule } from 'src/prisma/prisma.module';
-import { StorageModule } from 'src/storage/storage.module';
-import { ProjectsModule } from 'src/projects/projects.module';
+import { PrismaModule } from '../prisma/prisma.module';
+import { StorageModule } from '../storage/storage.module';
+import { ProjectsModule } from '../projects/projects.module';
 import { ImagesService } from './images.service';
 import { ImagesController } from './images.controller';
 

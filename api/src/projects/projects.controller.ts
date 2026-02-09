@@ -12,9 +12,9 @@ import {
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
-import { AuthGuard } from 'src/common/guards';
-import { ZodValidationPipe } from 'src/common/pipes';
-import { apiResponse } from 'src/utils';
+import { AuthGuard } from '../common/guards';
+import { ZodValidationPipe } from '../common/pipes';
+import { apiResponse } from '../utils';
 import { ProjectsService } from './projects.service';
 import {
   CreateProjectSchema,
@@ -22,7 +22,7 @@ import {
   UpdateProjectSchema,
 } from './dto';
 import type { Response } from 'express';
-import type { CurrentUser } from 'src/types';
+import type { CurrentUser } from '../types';
 import type {
   CreateProjectDto,
   QueryProjectDto,

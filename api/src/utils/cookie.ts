@@ -1,5 +1,5 @@
 import type { CookieOptions, Response } from 'express';
-import { envConfig } from 'src/config';
+import { envConfig } from '../config';
 
 const isProd = envConfig.NODE_ENV === 'production';
 

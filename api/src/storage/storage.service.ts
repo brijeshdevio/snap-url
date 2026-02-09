@@ -1,12 +1,8 @@
 // storage.service.ts
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ID } from 'node-appwrite';
 import { InputFile } from 'node-appwrite/file';
-import { envConfig, storage } from 'src/config';
+import { envConfig, storage } from '../config';
 // types
 import type { Storage } from 'node-appwrite';
 

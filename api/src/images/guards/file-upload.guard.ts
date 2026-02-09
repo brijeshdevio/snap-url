@@ -5,7 +5,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { ProjectsService } from 'src/projects/projects.service';
+import { ProjectsService } from '../../projects/projects.service';
 
 @Injectable()
 export class FileUploadGuard implements CanActivate {

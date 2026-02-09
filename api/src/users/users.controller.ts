@@ -1,9 +1,9 @@
 import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
-import { AuthGuard } from 'src/common/guards';
-import { apiResponse } from 'src/utils';
+import { AuthGuard } from '../common/guards';
+import { apiResponse } from '../utils';
 import { UsersService } from './users.service';
 import type { Response } from 'express';
-import type { CurrentUser } from 'src/types';
+import type { CurrentUser } from '../types';
 
 @Controller('users')
 @UseGuards(AuthGuard)

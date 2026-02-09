@@ -12,16 +12,16 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { envConfig } from 'src/config';
-import { AuthGuard } from 'src/common/guards';
-import { ZodValidationPipe } from 'src/common/pipes';
-import { apiResponse } from 'src/utils';
+import { envConfig } from '../config';
+import { AuthGuard } from '../common/guards';
+import { ZodValidationPipe } from '../common/pipes';
+import { apiResponse } from '../utils';
 import { ImagesService } from './images.service';
 import { FileUploadGuard } from './guards/file-upload.guard';
 import { fileValidationGuard } from './guards/file-validation.guard';
 import { QueryImageSchema } from './dto';
 import type { Response } from 'express';
-import type { CurrentUser, FileUploadAuth } from 'src/types';
+import type { CurrentUser, FileUploadAuth } from '../types';
 import type { QueryImageDto } from './dto';
 
 @Controller('images')

@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { ALLOWED_MIME_TYPES, MAX_FILE_SIZE } from 'src/constants';
+import { ALLOWED_MIME_TYPES, MAX_FILE_SIZE } from '../../constants';
 
 export const fileValidationGuard = (file: Express.Multer.File): void => {
   if (!file) {

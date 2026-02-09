@@ -6,13 +6,13 @@ import {
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
-import { ZodValidationPipe } from 'src/common/pipes';
-import { apiResponse, setCookie } from 'src/utils';
+import { ZodValidationPipe } from '../common/pipes';
+import { apiResponse, setCookie } from '../utils';
 import { AuthService } from './auth.service';
 import { LoginSchema, RegisterSchema } from './dto';
 import type { Response } from 'express';
 import type { LoginDto, RegisterDto } from './dto';
-import { AuthGuard } from 'src/common/guards';
+import { AuthGuard } from '../common/guards';
 
 @Controller('auth')
 export class AuthController {
