@@ -42,7 +42,7 @@ export class ImagesController {
       req.project.id,
       file,
     );
-    const url = `${envConfig.APP_URL}/images/${image.signKey}`;
+    const url = `${envConfig.APP_URL}/images/view/${image.signKey}`;
     const message = 'Image uploaded successfully.';
     return apiResponse(201, {
       data: { image: { ...image, url } },
@@ -62,7 +62,7 @@ export class ImagesController {
     return apiResponse(200, { data })(res);
   }
 
-  @Get(':signKey')
+  @Get('view/:signKey')
   async handleViewImage(
     @Param('signKey') signKey: string,
     @Res() res: Response,
@@ -72,6 +72,18 @@ export class ImagesController {
     res.setHeader('Content-Type', 'image/jpeg');
     res.setHeader('Content-Length', buffer.length);
     res.end(buffer);
+  }
+
+  @Get(':imageId')
+  @UseGuards(AuthGuard)
+  async handleGetImage(
+    @Req() req: CurrentUser,
+    @Param('imageId') imageId: string,
+    @Res() res: Response,
+  ): Promise<Response> {
+    const userId = req.user.id;
+    const image = await this.imagesService.getImage(userId, imageId);
+    return apiResponse(200, { data: { image } })(res);
   }
 
   @Delete(':imageId')

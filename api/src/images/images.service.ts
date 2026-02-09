@@ -7,7 +7,13 @@ import type { QueryImageDto } from './dto';
 import { Image } from 'src/generated/prisma/client';
 
 type ImagesResponse = {
-  images: Omit<Image, 'userId' | 'storage'>[];
+  images: {
+    id: string;
+    name: string;
+    size: number;
+    mimeType: string;
+    createdAt: Date;
+  }[];
   pagination: {
     total: number;
     page: number;
@@ -72,7 +78,13 @@ export class ImagesService {
     const [images, total] = await Promise.all([
       this.prisma.image.findMany({
         where,
-        omit: { userId: true, storage: true },
+        select: {
+          id: true,
+          name: true,
+          size: true,
+          mimeType: true,
+          createdAt: true,
+        },
         skip,
         take: limit,
       }),
@@ -92,6 +104,23 @@ export class ImagesService {
         hasPrev: page > 1,
       },
     };
+  }
+
+  async getImage(
+    userId: string,
+    imageId: string,
+  ): Promise<Omit<Image, 'projectId' | 'userId'>> {
+    const image = await this.prisma.image.findUnique({
+      where: { userId, id: imageId },
+      omit: { projectId: true, userId: true },
+      include: {
+        project: { select: { id: true, name: true, expiredAt: true } },
+      },
+    });
+    if (!image) {
+      throw new NotFoundException(`Image with id ${imageId} not found.`);
+    }
+    return image;
   }
 
   async viewImage(signKey: string): Promise<ArrayBuffer> {

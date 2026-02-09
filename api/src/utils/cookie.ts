@@ -1,4 +1,7 @@
 import type { CookieOptions, Response } from 'express';
+import { envConfig } from 'src/config';
+
+const isProd = envConfig.NODE_ENV === 'production';
 
 export function setCookie(
   key: string,
@@ -8,8 +11,8 @@ export function setCookie(
 ): void {
   res.cookie(key, token, {
     httpOnly: true,
-    secure: true,
-    sameSite: 'strict',
+    secure: isProd,
+    sameSite: isProd ? 'strict' : 'lax',
     ...options,
   });
 }

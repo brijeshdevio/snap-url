@@ -33,7 +33,7 @@ body,
   font-style: normal;
 }
 
-ul {
+nav ul {
   position: fixed;
   inset: 0px auto auto 0px;
   margin: 0px;

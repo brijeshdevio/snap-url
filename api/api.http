@@ -1,0 +1,80 @@
+@BASE_URL = http://localhost:4000/api
+
+
+### GET - /
+GET {{BASE_URL}}
+
+
+### POST - /auth/register
+POST {{BASE_URL}}/auth/register
+Content-Type: application/json
+
+{
+    "name": "Jordan",
+    "email": "jordan@ex.com",
+    "password": "jordan1234"
+}
+
+
+### POST - /auth/login
+POST {{BASE_URL}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "jordan@ex.com",
+    "password": "jordan1234"
+}
+
+
+### POST - /auth/logout
+POST {{BASE_URL}}/auth/logout
+
+
+### GET - /users/me
+GET {{BASE_URL}}/users/me
+
+
+### POST - /projects
+POST {{BASE_URL}}/projects
+Content-Type: application/json
+
+{
+    "name": "SnapURL"
+}
+
+
+### GET - /projects
+GET {{BASE_URL}}/projects
+
+
+### GET - /projects/:id
+GET {{BASE_URL}}/projects/cmlem5sco0000txcprj3q7ehe
+
+
+### PATCH - /projects/:id
+PATCH {{BASE_URL}}/projects/cmlem5sco0000txcprj3q7ehe
+Content-Type: application/json
+
+{
+    "name": "SnippetX"
+}
+
+
+### PATCH - /projects/:id/revoke
+PATCH {{BASE_URL}}/projects/cmlem5sco0000txcprj3q7ehe/revoke
+
+
+### DELETE - /projects/:id
+DELETE {{BASE_URL}}/projects/cmlem5sco0000txcprj3q7ehe
+
+
+### GET - /images
+GET {{BASE_URL}}/images
+
+
+### GET - /images/:id
+GET {{BASE_URL}}/images/cmlemm0w8000028cpl01g6abd
+
+
+### DELETE - /images/:id
+DELETE {{BASE_URL}}/images/cmlemm0w8000028cpl01g6abd
