@@ -1,9 +1,10 @@
-import { Pen, Trash, Upload } from "lucide-react";
+import { Eye, Pen, Trash, Upload } from "lucide-react";
 import { Button, Loader } from "@/components/ui";
 import { formatByte, formatTime } from "@/utils";
 import { useGetImagesQuery } from "@/features/image/image.queries";
 import { Pagination } from "@/components/layouts";
 import type { ImageDto } from "@/features/image/image.types";
+import { useDeleteImageMutation } from "@/features/image/image.mutations";
 
 function Header() {
   return (
@@ -24,10 +25,21 @@ function Header() {
   );
 }
 
-function TableRow({ name, size, mimeType, createdAt }: ImageDto) {
+function TableRow({ id, name, size, mimeType, createdAt }: ImageDto) {
+  const { mutateAsync: deleteImage, isPending: isDeleting } =
+    useDeleteImageMutation();
+
+  const handleDelete = () => {
+    if (confirm("Are you sure you want to delete this image?")) {
+      deleteImage(id);
+    }
+  };
+
   return (
     <tr>
-      <td>{name}</td>
+      <td className="max-w-40 overflow-hidden text-ellipsis" title={name}>
+        {name}
+      </td>
       <td>{mimeType}</td>
       <td>{formatByte(size)}</td>
       <td>{formatTime(createdAt) || "__"}</td>
@@ -36,8 +48,15 @@ function TableRow({ name, size, mimeType, createdAt }: ImageDto) {
           <button className="btn btn-soft btn-circle btn-sm">
             <Pen size={16} />
           </button>
-          <button className="btn btn-soft btn-error btn-circle btn-sm">
+          <Button
+            className="btn btn-soft btn-error btn-circle btn-sm"
+            onClick={handleDelete}
+            isLoading={isDeleting}
+          >
             <Trash size={16} />
+          </Button>
+          <button className="btn btn-soft btn-circle btn-sm">
+            <Eye size={16} />
           </button>
         </div>
       </td>
