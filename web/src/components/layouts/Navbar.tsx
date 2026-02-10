@@ -1,15 +1,19 @@
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
+import { useLogoutFacade } from "@/features/auth/auth.hooks";
+import { Button } from "../ui";
 
 const navItems = [
-  { to: "/projects", label: "Projects" },
   { to: "/dashboard", label: "Dashboard" },
   { to: "/images", label: "Images" },
 ];
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { logout } = useLogoutFacade();
+
+  const handleLogout = () => logout();
 
   return (
     <header className="bg-base-100 sticky top-0 z-50 w-full rounded-2xl border-b border-white/10 shadow">
@@ -35,6 +39,9 @@ const Navbar = () => {
                 {item.label}
               </NavLink>
             ))}
+            <Button className="btn-soft text-sm" onClick={handleLogout}>
+              Logout
+            </Button>
           </nav>
 
           {/* Mobile menu button */}
@@ -68,6 +75,12 @@ const Navbar = () => {
                   {item.label}
                 </NavLink>
               ))}
+              <Button
+                className="btn-soft w-full text-sm"
+                onClick={handleLogout}
+              >
+                Logout
+              </Button>
             </div>
           </div>
         )}
