@@ -5,6 +5,7 @@ import { useGetImagesQuery } from "@/features/image/image.queries";
 import { Pagination } from "@/components/layouts";
 import type { ImageDto } from "@/features/image/image.types";
 import { useDeleteImageMutation } from "@/features/image/image.mutations";
+import { ViewImageModal } from "@/components/modals";
 
 function Header() {
   return (
@@ -55,9 +56,7 @@ function TableRow({ id, name, size, mimeType, createdAt }: ImageDto) {
           >
             <Trash size={16} />
           </Button>
-          <button className="btn btn-soft btn-circle btn-sm">
-            <Eye size={16} />
-          </button>
+          <ViewImageModal imageId={id} />
         </div>
       </td>
     </tr>

@@ -8,3 +8,11 @@ export const useGetImagesQuery = () =>
     queryFn: ImageServices.getAll,
     select: transform,
   });
+
+export const useGetImageQuery = (imageId: string) =>
+  useQuery({
+    queryKey: ["get-image", imageId],
+    queryFn: () => ImageServices.getById(imageId),
+    select: transform,
+    enabled: false,
+  });

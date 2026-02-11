@@ -71,6 +71,9 @@ export class ImagesController {
     const buffer = Buffer.from(data);
     res.setHeader('Content-Type', 'image/jpeg');
     res.setHeader('Content-Length', buffer.length);
+    res.setHeader('Content-Disposition', 'inline');
+    res.setHeader('Access-Control-Allow-Origin', envConfig.FRONTEND_URL);
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
     res.end(buffer);
   }
 
