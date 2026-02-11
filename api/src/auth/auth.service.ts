@@ -6,8 +6,15 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { comparePassword, hashPassword } from '../utils';
-import type { User } from '../generated/prisma/client';
+import type { AuthProvider, User } from '../generated/prisma/client';
 import type { LoginDto, RegisterDto } from './dto';
+
+type FindOrCreateUserDto = {
+  email?: string;
+  name?: string;
+  authProvider: AuthProvider;
+  authId: string;
+};
 
 @Injectable()
 export class AuthService {
@@ -56,5 +63,30 @@ export class AuthService {
     const payload = { id: user.id };
     const accessToken = await this.jwtService.signAsync(payload);
     return { accessToken, user };
+  }
+
+  async findOrCreateUser(
+    data: FindOrCreateUserDto,
+  ): Promise<{ accessToken: string; user: Omit<User, 'password'> }> {
+    const user = await this.prisma.user.findFirst({
+      where: { email: data.email, authId: data.authId },
+      omit: { password: true },
+    });
+    if (user) {
+      const payload = { id: user.id };
+      const accessToken = await this.jwtService.signAsync(payload);
+      return { accessToken, user };
+    }
+
+    const userData = {
+      email: data.email,
+      name: data.name,
+      authProvider: data.authProvider,
+      authId: data.authId,
+    };
+    const newUser = await this.prisma.user.create({ data: userData });
+    const payload = { id: newUser.id };
+    const accessToken = await this.jwtService.signAsync(payload);
+    return { accessToken, user: newUser };
   }
 }

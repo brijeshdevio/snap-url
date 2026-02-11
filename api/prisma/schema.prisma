@@ -16,15 +16,23 @@ datasource db {
 
 model User {
   id        String   @id @default(cuid())
-  email     String   @unique
+  email     String?   @unique
   name      String?
   password  String?
   avatarUrl String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  authProvider AuthProvider @default(email)
+  authId String?
 
   projects Project[]
   images   Image[]
+}
+
+enum AuthProvider {
+  email
+  github
+  google
 }
 
 model Project {

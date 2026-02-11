@@ -10,4 +10,7 @@ export const envConfig = {
   APPWRITE_API_KEY: process.env.APPWRITE_API_KEY!,
   APPWRITE_BUCKET_ID: process.env.APPWRITE_BUCKET_ID!,
   FRONTEND_URL: process.env.FRONTEND_URL!,
+  GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID!,
+  GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET!,
+  GITHUB_CALLBACK: process.env.GITHUB_CALLBACK!,
 };

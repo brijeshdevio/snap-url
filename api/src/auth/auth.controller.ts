@@ -1,18 +1,22 @@
 import {
   Body,
   Controller,
+  Get,
   Post,
+  Req,
   Res,
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
+import { AuthGuard as PassportAuthGuard } from '@nestjs/passport';
+import { AuthGuard } from '../common/guards';
 import { ZodValidationPipe } from '../common/pipes';
+import { envConfig } from '../config';
 import { apiResponse, setCookie } from '../utils';
 import { AuthService } from './auth.service';
 import { LoginSchema, RegisterSchema } from './dto';
 import type { Response } from 'express';
 import type { LoginDto, RegisterDto } from './dto';
-import { AuthGuard } from '../common/guards';
 
 @Controller('auth')
 export class AuthController {
@@ -49,5 +53,17 @@ export class AuthController {
     res.clearCookie('access_token');
     const message = 'Logged out successfully';
     return apiResponse(200, { message })(res);
+  }
+
+  @Get('github')
+  @UseGuards(PassportAuthGuard('github'))
+  handleGithubAuth() {}
+
+  @Get('github/callback')
+  @UseGuards(PassportAuthGuard('github'))
+  async handleGithubCallback(@Req() req, @Res() res: Response) {
+    const rest = await this.authService.findOrCreateUser(req?.user);
+    setCookie('access_token', rest.accessToken, res);
+    res.redirect(envConfig.FRONTEND_URL + '/dashboard');
   }
 }

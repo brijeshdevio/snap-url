@@ -3,7 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 type User = {
   id: string;
-  email: string;
+  email: string | null;
   name: string | null;
   avatarUrl: string | null;
   createdAt: Date;
