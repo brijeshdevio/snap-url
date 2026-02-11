@@ -1,4 +1,4 @@
-import { Eye, Pen, Trash, Upload } from "lucide-react";
+import { Pen, Trash, Upload } from "lucide-react";
 import { Button, Loader } from "@/components/ui";
 import { formatByte, formatTime } from "@/utils";
 import { useGetImagesQuery } from "@/features/image/image.queries";

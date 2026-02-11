@@ -5,7 +5,13 @@ import { ModalWrapper } from "./ModalWrapper";
 import { useGetImageQuery } from "@/features/image/image.queries";
 import { formatByte, formatTime } from "@/utils";
 
-function ViewImage({ imageId }: { imageId: string }) {
+function ViewImage({
+  imageId,
+  onClose = () => {},
+}: {
+  imageId: string;
+  onClose: () => void;
+}) {
   const { refetch, data, isPending, error, isError } =
     useGetImageQuery(imageId);
 
@@ -65,7 +71,7 @@ function ViewImage({ imageId }: { imageId: string }) {
         <Button className="btn btn-soft btn-error">
           <Trash size={20} />
         </Button>
-        <Button className="btn btn-soft">
+        <Button className="btn btn-soft" onClick={onClose}>
           <X size={20} />
         </Button>
       </div>
@@ -92,7 +98,7 @@ export function ViewImageModal({ imageId }: { imageId: string }) {
       <ModalWrapper isActive={isActive} onClose={handleClose}>
         <div className="card border border-white/10">
           <div className="card-body">
-            <ViewImage imageId={imageId} />
+            <ViewImage imageId={imageId} onClose={handleClose} />
           </div>
         </div>
       </ModalWrapper>
