@@ -6,15 +6,12 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { comparePassword, hashPassword } from '../utils';
-import type { AuthProvider, User } from '../generated/prisma/client';
 import type { LoginDto, RegisterDto } from './dto';
-
-type FindOrCreateUserDto = {
-  email?: string;
-  name?: string;
-  authProvider: AuthProvider;
-  authId: string;
-};
+import {
+  FindOrCreateUserDto,
+  LoginResponse,
+  RegisterResponse,
+} from './auth.types';
 
 @Injectable()
 export class AuthService {
@@ -23,59 +20,69 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async register(registerData: RegisterDto): Promise<void> {
-    registerData.password = await hashPassword(registerData.password);
+  private async generateAccessToken(userId: string): Promise<string> {
+    const payload = { id: userId };
+    return await this.jwtService.signAsync(payload);
+  }
+
+  async register(data: RegisterDto): Promise<RegisterResponse> {
+    data.password = await hashPassword(data.password);
     try {
-      await this.prisma.user.create({
-        data: registerData,
-        omit: { password: true },
+      return await this.prisma.user.create({
+        data: data,
+        select: { id: true, email: true, name: true, createdAt: true },
       });
     } catch (error: unknown) {
       const CONFLICT_ERROR_CODE = 'P2002';
       const err = error as { code: string };
       if (err?.code === CONFLICT_ERROR_CODE) {
-        throw new ConflictException(`${registerData.email} already exists.`);
+        throw new ConflictException(`${data.email} already exists.`);
       }
 
       throw error;
     }
   }
 
-  async login(
-    loginData: LoginDto,
-  ): Promise<{ accessToken: string; user: Omit<User, 'password'> }> {
+  async login(data: LoginDto): Promise<LoginResponse> {
     const user = await this.prisma.user.findUnique({
-      where: { email: loginData.email },
+      where: { email: data.email },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        createdAt: true,
+        password: true,
+      },
     });
     if (!user || !user?.password) {
       throw new UnauthorizedException('Invalid credentials.');
     }
 
-    const isValidPassword = await comparePassword(
-      user?.password,
-      loginData.password,
-    );
-    user.password = undefined as unknown as string;
-    if (!isValidPassword && user.password) {
+    const { password, ...safeUser } = user;
+
+    const isValidPassword = await comparePassword(password, data.password);
+    if (!isValidPassword && password) {
       throw new UnauthorizedException('Invalid credentials.');
     }
 
-    const payload = { id: user.id };
-    const accessToken = await this.jwtService.signAsync(payload);
-    return { accessToken, user };
+    const accessToken = await this.generateAccessToken(safeUser.id);
+    return { accessToken, user: safeUser };
   }
 
   async findOrCreateUser(
     data: FindOrCreateUserDto,
-  ): Promise<{ accessToken: string; user: Omit<User, 'password'> }> {
+  ): Promise<LoginResponse['accessToken']> {
     const user = await this.prisma.user.findFirst({
       where: { email: data.email, authId: data.authId },
-      omit: { password: true },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        createdAt: true,
+      },
     });
     if (user) {
-      const payload = { id: user.id };
-      const accessToken = await this.jwtService.signAsync(payload);
-      return { accessToken, user };
+      return await this.generateAccessToken(user.id);
     }
 
     const userData = {
@@ -84,9 +91,12 @@ export class AuthService {
       authProvider: data.authProvider,
       authId: data.authId,
     };
-    const newUser = await this.prisma.user.create({ data: userData });
-    const payload = { id: newUser.id };
-    const accessToken = await this.jwtService.signAsync(payload);
-    return { accessToken, user: newUser };
+    const newUser = await this.prisma.user.create({
+      data: userData,
+      select: {
+        id: true,
+      },
+    });
+    return await this.generateAccessToken(newUser.id);
   }
 }

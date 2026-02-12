@@ -17,6 +17,8 @@ import { AuthService } from './auth.service';
 import { LoginSchema, RegisterSchema } from './dto';
 import type { Response } from 'express';
 import type { LoginDto, RegisterDto } from './dto';
+import { COOKIE_NAME } from '../constants';
+import { FindOrCreateUserDto } from './auth.types';
 
 @Controller('auth')
 export class AuthController {
@@ -24,7 +26,7 @@ export class AuthController {
 
   @Post('register')
   @UsePipes(new ZodValidationPipe(RegisterSchema))
-  async handleRegister(
+  async register(
     @Body() body: RegisterDto,
     @Res() res: Response,
   ): Promise<Response> {
@@ -35,12 +37,9 @@ export class AuthController {
 
   @Post('login')
   @UsePipes(new ZodValidationPipe(LoginSchema))
-  async handleLogin(
-    @Body() body: LoginDto,
-    @Res() res: Response,
-  ): Promise<Response> {
+  async login(@Body() body: LoginDto, @Res() res: Response): Promise<Response> {
     const { accessToken, user } = await this.authService.login(body);
-    setCookie('access_token', accessToken, res);
+    setCookie(COOKIE_NAME.ACCESS_TOKEN, accessToken, res);
     const message = 'Logged in successfully';
     return apiResponse(200, { data: { user }, rest: { accessToken }, message })(
       res,
@@ -49,21 +48,24 @@ export class AuthController {
 
   @Post('logout')
   @UseGuards(AuthGuard)
-  handleLogout(@Res() res: Response): Response {
-    res.clearCookie('access_token');
+  logout(@Res() res: Response): Response {
+    res.clearCookie(COOKIE_NAME.ACCESS_TOKEN);
     const message = 'Logged out successfully';
     return apiResponse(200, { message })(res);
   }
 
   @Get('github')
   @UseGuards(PassportAuthGuard('github'))
-  handleGithubAuth() {}
+  githubAuth() {}
 
   @Get('github/callback')
   @UseGuards(PassportAuthGuard('github'))
-  async handleGithubCallback(@Req() req, @Res() res: Response) {
-    const rest = await this.authService.findOrCreateUser(req?.user);
-    setCookie('access_token', rest.accessToken, res);
+  async githubCallback(
+    @Req() req: { user: FindOrCreateUserDto },
+    @Res() res: Response,
+  ) {
+    const accessToken = await this.authService.findOrCreateUser(req?.user);
+    setCookie(COOKIE_NAME.ACCESS_TOKEN, accessToken, res);
     res.redirect(envConfig.FRONTEND_URL + '/dashboard');
   }
 }

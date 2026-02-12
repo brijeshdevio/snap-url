@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
+import { COOKIE_NAME } from '../../constants';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -15,8 +16,7 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
     const token =
       this.extractTokenFromHeader(request) ||
-      (request.cookies?.['access_token'] as string);
-    const refreshToken = request.cookies?.['refresh_token'] as string;
+      (request.cookies?.[COOKIE_NAME.ACCESS_TOKEN] as string);
 
     if (!token) {
       throw new UnauthorizedException('Missing token.');
@@ -25,7 +25,6 @@ export class AuthGuard implements CanActivate {
     try {
       const payload = (await this.jwtService.verifyAsync(token)) as unknown;
       request['user'] = payload;
-      request['auth'] = { refreshToken };
     } catch {
       throw new UnauthorizedException('Invalid or expired token.');
     }

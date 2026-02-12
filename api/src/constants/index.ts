@@ -8,3 +8,6 @@ export const ALLOWED_MIME_TYPES = [
   'image/avif',
 ];
 export const MAX_FILE_SIZE = 3 * 1024 * 1024;
+export const COOKIE_NAME = {
+  ACCESS_TOKEN: 'access_token',
+};
