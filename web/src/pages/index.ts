@@ -4,3 +4,4 @@ export * from "./Login";
 export * from "./Dashboard";
 export * from "./Docs";
 export * from "./Images";
+export * from "./Playground";

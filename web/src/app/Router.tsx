@@ -6,7 +6,15 @@ import {
   Routes,
 } from "react-router-dom";
 import { AuthLayout, BaseLayout } from "./Layouts";
-import { Dashboard, Docs, Home, Images, Login, Register } from "@/pages";
+import {
+  Dashboard,
+  Docs,
+  Home,
+  Images,
+  Login,
+  Playground,
+  Register,
+} from "@/pages";
 import { useAuth } from "@/hooks";
 import { Loader } from "@/components/ui";
 
@@ -33,6 +41,7 @@ export function Router() {
         <Route element={<BaseLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/docs" element={<Docs />} />
+          <Route path="/playground" element={<Playground />} />
           <Route element={<ProtectRouter />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/images" element={<Images />} />

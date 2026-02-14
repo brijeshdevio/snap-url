@@ -7,6 +7,8 @@ import { Button } from "../ui";
 const navItems = [
   { to: "/dashboard", label: "Dashboard" },
   { to: "/images", label: "Images" },
+  { to: "/docs", label: "Docs" },
+  { to: "/playground", label: "Playground" },
 ];
 
 const Navbar = () => {
