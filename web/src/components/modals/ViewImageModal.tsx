@@ -13,6 +13,7 @@ function ViewImage({
   imageId: string;
   onClose: () => void;
 }) {
+  const BASE_URL = import.meta.env.VITE_API_URL;
   const { refetch, data, isPending, error, isError } =
     useGetImageQuery(imageId);
   const { mutateAsync: deleteImage, isPending: isDeleting } =
@@ -74,9 +75,11 @@ function ViewImage({
         </div>
       </div>
       <div className="mt-2 flex items-center gap-x-2">
-        <Button className="btn btn-soft btn-primary">
-          <Download size={20} />
-        </Button>
+        <a href={`${BASE_URL}/images/download/${data?.image?.signKey}`}>
+          <Button className="btn btn-soft btn-primary">
+            <Download size={20} />
+          </Button>
+        </a>
         <Button
           className="btn btn-soft btn-error"
           isLoading={isDeleting}
