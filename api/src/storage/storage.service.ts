@@ -56,4 +56,12 @@ export class StorageService {
       fileId,
     });
   }
+
+  async downloadImage(fileId: string): Promise<ArrayBuffer> {
+    const file = await this.storage.getFileDownload({
+      bucketId: envConfig.APPWRITE_BUCKET_ID,
+      fileId,
+    });
+    return file;
+  }
 }

@@ -154,4 +154,16 @@ export class ImagesService {
       throw error;
     }
   }
+
+  async downloadImage(signKey: string): Promise<ArrayBuffer> {
+    const image = await this.prisma.image.findUnique({
+      where: { signKey },
+      select: { storage: true },
+    });
+    if (!image) {
+      throw new NotFoundException(`Image with signKey ${signKey} not found.`);
+    }
+    const file = await this.storageService.downloadImage(image.storage);
+    return file;
+  }
 }

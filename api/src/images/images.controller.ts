@@ -100,4 +100,19 @@ export class ImagesController {
     const message = 'Image deleted successfully.';
     return apiResponse(200, { data: { image }, message })(res);
   }
+
+  @Get('download/:signKey')
+  async handleDownloadImage(
+    @Param('signKey') signKey: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    const image = await this.imagesService.downloadImage(signKey);
+    const buffer = Buffer.from(image);
+    res.setHeader('Content-Type', 'image/jpeg');
+    res.setHeader('Content-Length', buffer.length);
+    res.setHeader('Content-Disposition', 'attachment');
+    res.setHeader('Access-Control-Allow-Origin', envConfig.FRONTEND_URL);
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.end(buffer);
+  }
 }
