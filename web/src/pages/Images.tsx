@@ -1,4 +1,4 @@
-import { Pen, Trash, Upload } from "lucide-react";
+import { Trash, Upload } from "lucide-react";
 import { Button, Loader } from "@/components/ui";
 import { formatByte, formatTime } from "@/utils";
 import { useGetImagesQuery } from "@/features/image/image.queries";
@@ -6,6 +6,7 @@ import { Pagination } from "@/components/layouts";
 import type { ImageDto } from "@/features/image/image.types";
 import { useDeleteImageMutation } from "@/features/image/image.mutations";
 import { ViewImageModal } from "@/components/modals";
+import { Link } from "react-router-dom";
 
 function Header() {
   return (
@@ -17,10 +18,12 @@ function Header() {
         </p>
       </div>
       <div>
-        <Button className="btn-primary btn-gradient">
-          <Upload size={20} />
-          <span>Upload</span>
-        </Button>
+        <Link to="/playground">
+          <Button className="btn-primary btn-gradient">
+            <Upload size={20} />
+            <span>Upload</span>
+          </Button>
+        </Link>
       </div>
     </div>
   );
@@ -46,9 +49,9 @@ function TableRow({ id, name, size, mimeType, createdAt }: ImageDto) {
       <td>{formatTime(createdAt) || "__"}</td>
       <td>
         <div className="flex items-center gap-3">
-          <button className="btn btn-soft btn-circle btn-sm">
+          {/* <button className="btn btn-soft btn-circle btn-sm">
             <Pen size={16} />
-          </button>
+          </button> */}
           <Button
             className="btn btn-soft btn-error btn-circle btn-sm"
             onClick={handleDelete}

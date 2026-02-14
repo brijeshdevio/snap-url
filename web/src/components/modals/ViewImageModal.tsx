@@ -4,6 +4,7 @@ import { Button, Loader } from "../ui";
 import { ModalWrapper } from "./ModalWrapper";
 import { useGetImageQuery } from "@/features/image/image.queries";
 import { formatByte, formatTime } from "@/utils";
+import { useDeleteImageMutation } from "@/features/image/image.mutations";
 
 function ViewImage({
   imageId,
@@ -14,6 +15,8 @@ function ViewImage({
 }) {
   const { refetch, data, isPending, error, isError } =
     useGetImageQuery(imageId);
+  const { mutateAsync: deleteImage, isPending: isDeleting } =
+    useDeleteImageMutation();
 
   useEffect(() => {
     if (imageId) refetch();
@@ -28,6 +31,12 @@ function ViewImage({
   }
 
   const imageURL = `${import.meta.env.VITE_API_URL}/images/view/${data?.image?.signKey}`;
+
+  const handleDelete = () => {
+    if (confirm("Are you sure you want to delete this image?")) {
+      deleteImage(data.image.id);
+    }
+  };
 
   return (
     <>
@@ -68,7 +77,11 @@ function ViewImage({
         <Button className="btn btn-soft btn-primary">
           <Download size={20} />
         </Button>
-        <Button className="btn btn-soft btn-error">
+        <Button
+          className="btn btn-soft btn-error"
+          isLoading={isDeleting}
+          onClick={handleDelete}
+        >
           <Trash size={20} />
         </Button>
         <Button className="btn btn-soft" onClick={onClose}>
