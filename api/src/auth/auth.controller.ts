@@ -20,6 +20,7 @@ import type { LoginDto, RegisterDto } from './dto';
 import { COOKIE_NAME, EXPIRED_REFRESH_TOKEN } from '../constants';
 import { FindOrCreateUserDto } from './auth.types';
 import { RefreshTokenGuard } from './guards';
+import type { CurrentUser } from '../types';
 
 @Controller('auth')
 export class AuthController {
@@ -69,8 +70,13 @@ export class AuthController {
 
   @Post('logout')
   @UseGuards(AuthGuard)
-  logout(@Res() res: Response): Response {
+  async logout(
+    @Req() req: CurrentUser,
+    @Res() res: Response,
+  ): Promise<Response> {
+    await this.authService.logout(req.user.id);
     res.clearCookie(COOKIE_NAME.ACCESS_TOKEN);
+    res.clearCookie(COOKIE_NAME.REFRESH_TOKEN);
     const message = 'Logged out successfully';
     return apiResponse(200, { message })(res);
   }
