@@ -91,8 +91,13 @@ export class AuthController {
     @Req() req: { user: FindOrCreateUserDto },
     @Res() res: Response,
   ) {
-    const accessToken = await this.authService.findOrCreateUser(req?.user);
+    const { accessToken, refreshToken } =
+      await this.authService.findOrCreateUser(req?.user);
     setCookie(COOKIE_NAME.ACCESS_TOKEN, accessToken, res);
+    setCookie(COOKIE_NAME.REFRESH_TOKEN, refreshToken, res, {
+      path: '/api/auth/refresh',
+      maxAge: EXPIRED_REFRESH_TOKEN,
+    });
     res.redirect(envConfig.FRONTEND_URL + '/dashboard');
   }
 }

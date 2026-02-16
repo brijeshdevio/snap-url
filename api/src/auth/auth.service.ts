@@ -94,18 +94,31 @@ export class AuthService {
 
   async findOrCreateUser(
     data: FindOrCreateUserDto,
-  ): Promise<LoginResponse['accessToken']> {
-    const user = await this.prisma.user.findFirst({
+  ): Promise<Omit<LoginResponse, 'user'>> {
+    const refreshToken = this.randomString();
+    const tokenHash = this.tokenHash(refreshToken);
+    const expiresAt = new Date(Date.now() + EXPIRED_REFRESH_TOKEN);
+
+    const user = await this.prisma.user.findUnique({
       where: { email: data.email, authId: data.authId },
       select: {
         id: true,
-        email: true,
-        name: true,
-        createdAt: true,
       },
     });
     if (user) {
-      return await this.generateAccessToken(user.id);
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          refreshTokens: {
+            create: {
+              tokenHash,
+              expiresAt,
+            },
+          },
+        },
+      });
+      const accessToken = await this.generateAccessToken(user.id);
+      return { accessToken, refreshToken };
     }
 
     const userData = {
@@ -115,12 +128,22 @@ export class AuthService {
       authId: data.authId,
     };
     const newUser = await this.prisma.user.create({
-      data: userData,
+      data: {
+        ...userData,
+        refreshTokens: {
+          create: {
+            tokenHash,
+            expiresAt,
+          },
+        },
+      },
       select: {
         id: true,
       },
     });
-    return await this.generateAccessToken(newUser.id);
+
+    const accessToken = await this.generateAccessToken(newUser.id);
+    return { accessToken, refreshToken };
   }
 
   async refresh(token: string): Promise<{ accessToken: string }> {
