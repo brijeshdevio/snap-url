@@ -13,6 +13,7 @@ export function setCookie(
     httpOnly: true,
     secure: isProd,
     sameSite: isProd ? 'strict' : 'lax',
+    maxAge: 30 * 60 * 1000,
     ...options,
   });
 }

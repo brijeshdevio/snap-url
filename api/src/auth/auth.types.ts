@@ -14,6 +14,7 @@ export type RegisterResponse = BaseUserResponse;
 export type LoginResponse = {
   user: BaseUserResponse;
   accessToken: string;
+  refreshToken: string;
 };
 
 // =============== AUTH DTOs ===============

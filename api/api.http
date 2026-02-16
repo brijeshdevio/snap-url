@@ -30,6 +30,10 @@ Content-Type: application/json
 POST {{BASE_URL}}/auth/logout
 
 
+### POST - /auth/refresh
+POST {{BASE_URL}}/auth/refresh
+
+
 ### GET - /users/me
 GET {{BASE_URL}}/users/me
 

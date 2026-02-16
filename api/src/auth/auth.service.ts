@@ -1,3 +1,4 @@
+import { randomBytes, createHash } from 'node:crypto';
 import {
   ConflictException,
   Injectable,
@@ -6,6 +7,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { comparePassword, hashPassword } from '../utils';
+import { EXPIRED_REFRESH_TOKEN } from '../constants';
 import type { LoginDto, RegisterDto } from './dto';
 import {
   FindOrCreateUserDto,
@@ -19,6 +21,14 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
   ) {}
+
+  private randomString(): string {
+    return randomBytes(128).toString('hex');
+  }
+
+  private tokenHash(token: string): string {
+    return createHash('sha256').update(token).digest('hex');
+  }
 
   private async generateAccessToken(userId: string): Promise<string> {
     const payload = { id: userId };
@@ -64,9 +74,22 @@ export class AuthService {
     if (!isValidPassword && password) {
       throw new UnauthorizedException('Invalid credentials.');
     }
-
+    const refreshToken = this.randomString();
+    const tokenHash = this.tokenHash(refreshToken);
+    const expiresAt = new Date(Date.now() + EXPIRED_REFRESH_TOKEN);
+    await this.prisma.user.update({
+      where: { id: safeUser.id },
+      data: {
+        refreshTokens: {
+          create: {
+            tokenHash,
+            expiresAt,
+          },
+        },
+      },
+    });
     const accessToken = await this.generateAccessToken(safeUser.id);
-    return { accessToken, user: safeUser };
+    return { accessToken, user: safeUser, refreshToken };
   }
 
   async findOrCreateUser(
@@ -98,5 +121,24 @@ export class AuthService {
       },
     });
     return await this.generateAccessToken(newUser.id);
+  }
+
+  async refresh(token: string): Promise<{ accessToken: string }> {
+    const tokenHash = this.tokenHash(token);
+    const refreshToken = await this.prisma.refreshToken.findFirst({
+      where: { tokenHash, expiresAt: { gt: new Date() } },
+      select: {
+        user: {
+          select: { id: true, email: true },
+        },
+      },
+    });
+    if (!refreshToken) {
+      throw new UnauthorizedException(`Invalid or expired refresh token.`);
+    }
+
+    const accessToken = await this.generateAccessToken(refreshToken.user.id);
+
+    return { accessToken };
   }
 }
