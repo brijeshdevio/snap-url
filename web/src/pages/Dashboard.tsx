@@ -5,6 +5,8 @@ import { useGetProjectsQuery } from "@/features/project/project.queries";
 import { formatTime } from "@/utils";
 import type { ProjectDto } from "@/features/project/project.types";
 import { Pagination } from "@/components/layouts";
+import { useDeleteProjectMutation } from "@/features/project/project.mutations";
+import { useState } from "react";
 
 function Header() {
   return (
@@ -23,7 +25,52 @@ function Header() {
   );
 }
 
+function Actions({ id, status }: { id: string; status: string }) {
+  const [selectedId, setSelectedId] = useState("");
+  const { mutate: deleteProject, isPending } = useDeleteProjectMutation();
+
+  const handleDelete = (id: string) => {
+    return () => {
+      if (confirm("Are you sure you want to delete this project?")) {
+        setSelectedId(id);
+        deleteProject(id);
+      }
+    };
+  };
+
+  return (
+    <div className="flex items-center gap-3">
+      <button className="btn btn-soft btn-circle btn-sm">
+        <Pen size={16} />
+      </button>
+      <button
+        className="btn btn-soft btn-error btn-circle btn-sm"
+        onClick={handleDelete(id)}
+        disabled={(selectedId === id && isPending) || status !== "active"}
+      >
+        <Trash size={16} />
+      </button>
+    </div>
+  );
+}
+
+function Status({ status }: { status: string }) {
+  const statuss = {
+    active: "active",
+    revoked: "revoked",
+    expired: "expired",
+  };
+  const activeStatus =
+    statuss.active === status
+      ? "badge-success"
+      : statuss.expired === status
+        ? "badge-error"
+        : "badge-warning";
+  return <span className={`badge badge-sm ${activeStatus}`}>{status}</span>;
+}
+
 function TableRow({
+  id,
   name,
   status,
   usedCount,
@@ -33,19 +80,14 @@ function TableRow({
   return (
     <tr>
       <td>{name}</td>
-      <td className="capitalize">{status}</td>
+      <td className="capitalize">
+        <Status status={status} />
+      </td>
       <td>{formatTime(lastUsedAt) || "Never"}</td>
       <td>{formatTime(expiredAt) || "Never"}</td>
       <td>{usedCount} API Calls</td>
       <td>
-        <div className="flex items-center gap-3">
-          <button className="btn btn-soft btn-circle btn-sm">
-            <Pen size={16} />
-          </button>
-          <button className="btn btn-soft btn-error btn-circle btn-sm">
-            <Trash size={16} />
-          </button>
-        </div>
+        <Actions id={id} status={status} />
       </td>
     </tr>
   );

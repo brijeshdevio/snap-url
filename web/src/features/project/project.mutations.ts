@@ -17,3 +17,18 @@ export const useCreateProjectMutation = () => {
 
   return mutation;
 };
+
+export const useDeleteProjectMutation = () => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationKey: ["delete-project"],
+    mutationFn: ProjectServices.delete,
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: ["get-projects"],
+      }),
+    onError: (error: unknown) => notifyError(error),
+  });
+  return mutation;
+};

@@ -5,4 +5,6 @@ export const ProjectServices = {
   create: (data: CreateProjectDto) =>
     http.post("/projects", data).then((res) => res.data),
   getAll: () => http.get("/projects").then((res) => res.data),
+  delete: (projectId: string) =>
+    http.delete(`/projects/${projectId}`).then((res) => res.data),
 };
