@@ -15,29 +15,48 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String?   @unique
-  name      String?
-  password  String?
-  avatarUrl String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String       @id @default(cuid())
+  email        String?      @unique
+  name         String?
+  passwordHash String?
+  avatarUrl    String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
   authProvider AuthProvider @default(email)
-  authId String?
+  authId       String?
 
+  sessions      Session[]
+  projects      Project[]
+  images        Image[]
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime
+
+  ipAddress    String?
+  userAgent    String?
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   refreshTokens RefreshToken[]
-  projects Project[]
-  images   Image[]
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model RefreshToken {
-  id        String   @id @default(uuid())
-  tokenHash String
-  userId    String
-  expiresAt DateTime
-  createdAt DateTime @default(now())
+  id           String   @id @default(uuid())
+  tokenHash    String   @unique
+  sessionId    String
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime
 
-  user User @relation(fields: [userId], references: [id])
+  session      Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([expiresAt])
 }
 
 enum AuthProvider {

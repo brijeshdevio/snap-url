@@ -17,6 +17,11 @@ export type LoginResponse = {
   refreshToken: string;
 };
 
+export type RefreshResponse = {
+  accessToken: string;
+  refreshToken: string;
+};
+
 // =============== AUTH DTOs ===============
 
 export type FindOrCreateUserDto = {

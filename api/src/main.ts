@@ -15,9 +15,9 @@ async function bootstrap() {
     credentials: true,
   });
   app.use(helmet());
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(envConfig.PORT);
 }
 
 bootstrap()
-  .then(() => console.log('Server started on port', process.env.PORT))
+  .then(() => console.log('Server started on port', envConfig.PORT))
   .catch((err) => console.error(err));

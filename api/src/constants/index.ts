@@ -13,3 +13,7 @@ export const COOKIE_NAME = {
   REFRESH_TOKEN: 'refresh_token',
 };
 export const EXPIRED_REFRESH_TOKEN = 7 * 24 * 60 * 60 * 1000;
+export const PRISMA_ERROR_CODES = {
+  CONFLICT: 'P2002',
+  NOT_FOUND: 'P2025',
+};

@@ -1,17 +1,21 @@
 import { randomBytes, createHash } from 'node:crypto';
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
+  InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { comparePassword, hashPassword } from '../utils';
-import { EXPIRED_REFRESH_TOKEN } from '../constants';
+import { PRISMA_ERROR_CODES } from '../constants';
 import type { LoginDto, RegisterDto } from './dto';
 import {
   FindOrCreateUserDto,
   LoginResponse,
+  RefreshResponse,
   RegisterResponse,
 } from './auth.types';
 
@@ -21,6 +25,9 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
   ) {}
+
+  private readonly Day = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  private readonly Week = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
   private randomString(): string {
     return randomBytes(128).toString('hex');
@@ -36,10 +43,14 @@ export class AuthService {
   }
 
   async register(data: RegisterDto): Promise<RegisterResponse> {
-    data.password = await hashPassword(data.password);
     try {
+      const passwordHash = await hashPassword(data.password);
       return await this.prisma.user.create({
-        data: data,
+        data: {
+          name: data.name,
+          email: data.email,
+          passwordHash,
+        },
         select: { id: true, email: true, name: true, createdAt: true },
       });
     } catch (error: unknown) {
@@ -61,29 +72,29 @@ export class AuthService {
         email: true,
         name: true,
         createdAt: true,
-        password: true,
+        passwordHash: true,
       },
     });
-    if (!user || !user?.password) {
+    if (!user || !user?.passwordHash) {
       throw new UnauthorizedException('Invalid credentials.');
     }
 
-    const { password, ...safeUser } = user;
+    const { passwordHash, ...safeUser } = user;
 
-    const isValidPassword = await comparePassword(password, data.password);
-    if (!isValidPassword && password) {
+    const isValidPassword = await comparePassword(passwordHash, data.password);
+    if (!isValidPassword && passwordHash) {
       throw new UnauthorizedException('Invalid credentials.');
     }
     const refreshToken = this.randomString();
     const tokenHash = this.tokenHash(refreshToken);
-    const expiresAt = new Date(Date.now() + EXPIRED_REFRESH_TOKEN);
-    await this.prisma.user.update({
-      where: { id: safeUser.id },
+    await this.prisma.session.create({
       data: {
+        userId: safeUser.id,
+        expiresAt: this.Week,
         refreshTokens: {
           create: {
             tokenHash,
-            expiresAt,
+            expiresAt: this.Day,
           },
         },
       },
@@ -92,13 +103,9 @@ export class AuthService {
     return { accessToken, user: safeUser, refreshToken };
   }
 
-  async findOrCreateUser(
-    data: FindOrCreateUserDto,
-  ): Promise<Omit<LoginResponse, 'user'>> {
+  async findOrCreateUser(data: FindOrCreateUserDto): Promise<RefreshResponse> {
     const refreshToken = this.randomString();
     const tokenHash = this.tokenHash(refreshToken);
-    const expiresAt = new Date(Date.now() + EXPIRED_REFRESH_TOKEN);
-
     const user = await this.prisma.user.findUnique({
       where: { email: data.email, authId: data.authId },
       select: {
@@ -109,10 +116,15 @@ export class AuthService {
       await this.prisma.user.update({
         where: { id: user.id },
         data: {
-          refreshTokens: {
+          sessions: {
             create: {
-              tokenHash,
-              expiresAt,
+              expiresAt: this.Week,
+              refreshTokens: {
+                create: {
+                  tokenHash,
+                  expiresAt: this.Day,
+                },
+              },
             },
           },
         },
@@ -121,19 +133,21 @@ export class AuthService {
       return { accessToken, refreshToken };
     }
 
-    const userData = {
-      email: data.email,
-      name: data.name,
-      authProvider: data.authProvider,
-      authId: data.authId,
-    };
     const newUser = await this.prisma.user.create({
       data: {
-        ...userData,
-        refreshTokens: {
+        email: data.email,
+        name: data.name,
+        authProvider: data.authProvider,
+        authId: data.authId,
+        sessions: {
           create: {
-            tokenHash,
-            expiresAt,
+            expiresAt: this.Week,
+            refreshTokens: {
+              create: {
+                tokenHash,
+                expiresAt: this.Day,
+              },
+            },
           },
         },
       },
@@ -146,28 +160,52 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  async refresh(token: string): Promise<{ accessToken: string }> {
-    const tokenHash = this.tokenHash(token);
-    const refreshToken = await this.prisma.refreshToken.findFirst({
-      where: { tokenHash, expiresAt: { gt: new Date() } },
-      select: {
-        user: {
-          select: { id: true, email: true },
+  async refresh(token: string): Promise<RefreshResponse> {
+    try {
+      const decodedTokenHash = this.tokenHash(token);
+      const newRefreshToken = this.randomString();
+      const newTokenHash = this.tokenHash(newRefreshToken);
+
+      const refreshToken = await this.prisma.refreshToken.update({
+        where: {
+          expiresAt: { gt: new Date() },
+          tokenHash: decodedTokenHash,
+          session: {
+            expiresAt: { gt: new Date() },
+          },
         },
-      },
-    });
-    if (!refreshToken) {
-      throw new UnauthorizedException(`Invalid or expired refresh token.`);
+        data: {
+          expiresAt: this.Day,
+          tokenHash: newTokenHash,
+        },
+        select: {
+          session: {
+            select: {
+              userId: true,
+            },
+          },
+        },
+      });
+      const accessToken = await this.generateAccessToken(
+        refreshToken.session.userId,
+      );
+      return { accessToken, refreshToken: newRefreshToken };
+    } catch (error: unknown) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === PRISMA_ERROR_CODES.NOT_FOUND) {
+          throw new ForbiddenException('Invalid or expired refresh token.');
+        }
+      }
+      throw new InternalServerErrorException('Failed to rotate refresh token.');
     }
-
-    const accessToken = await this.generateAccessToken(refreshToken.user.id);
-
-    return { accessToken };
   }
 
   async logout(userId: string): Promise<void> {
-    await this.prisma.refreshToken.deleteMany({
-      where: { userId },
+    await this.prisma.session.deleteMany({
+      where: {
+        expiresAt: { gt: new Date() },
+        userId,
+      },
     });
   }
 }
