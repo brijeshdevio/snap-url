@@ -8,7 +8,11 @@ import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
 import { PRISMA_ERROR_CODES } from '../constants';
 import { randomString } from '../lib';
-import { CreateResponse, FindAllResponse } from './images.types';
+import {
+  CreateResponse,
+  FindAllResponse,
+  FindOneResponse,
+} from './images.types';
 
 @Injectable()
 export class ImagesService {
@@ -72,6 +76,25 @@ export class ImagesService {
       },
     });
     return { images };
+  }
+
+  async findOne(userId: string, id: string): Promise<FindOneResponse> {
+    const image = await this.prismaService.image.findFirst({
+      where: {
+        id,
+        project: {
+          userId,
+        },
+      },
+      omit: {
+        projectId: true,
+        storage: true,
+      },
+    });
+    if (image) return image;
+    throw new ForbiddenException(
+      `You don't have access to this Image. Please try again with a valid Image id.`,
+    );
   }
 
   async preview(imgId: string): Promise<ArrayBuffer> {

@@ -16,3 +16,13 @@ export type FindAllResponse = {
     createdAt: Date | null;
   }[];
 };
+
+export type FindOneResponse = {
+  id: string;
+  key: string;
+  name: string;
+  mimeType: string;
+  size: number;
+  deletedAt: Date | null;
+  createdAt: Date;
+};

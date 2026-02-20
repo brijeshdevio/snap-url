@@ -80,5 +80,9 @@ GET {{BASE_URL}}/images
 GET {{BASE_URL}}/images/img_fe80877d0e33
 
 
+### GET - /images/:id/meta
+GET {{BASE_URL}}/images/cmlxog75g000258cplhgel9ta/meta
+
+
 ### DELETE - /images/:id
 DELETE {{BASE_URL}}/images/cmlxog75g000258cplhgel9ta

@@ -64,6 +64,13 @@ export class ImagesController {
     return apiResponse(200, { data });
   }
 
+  @Get(':id/meta')
+  @UseGuards(JwtAuthGuard)
+  async findOne(@CurrentUser('sub') userId: string, @Param('id') id: string) {
+    const image = await this.imagesService.findOne(userId, id);
+    return apiResponse(200, { data: { image } });
+  }
+
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   async delete(@CurrentUser('sub') userId: string, @Param('id') id: string) {
