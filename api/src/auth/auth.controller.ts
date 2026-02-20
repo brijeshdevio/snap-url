@@ -83,7 +83,6 @@ export class AuthController {
       await this.authService.findOrCreateUser(req?.user);
     setCookie(COOKIE_NAME.ACCESS_TOKEN, accessToken, res);
     setCookie(COOKIE_NAME.REFRESH_TOKEN, refreshToken, res, {
-      path: '/api/auth/refresh',
       maxAge: EXPIRED_REFRESH_TOKEN,
     });
     res.redirect(envConfig.FRONTEND_URL + '/dashboard');
