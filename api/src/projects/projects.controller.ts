@@ -40,6 +40,12 @@ export class ProjectsController {
     return apiResponse(200, { data });
   }
 
+  @Get(':id')
+  async findOne(@CurrentUser('sub') userId: string, @Param('id') id: string) {
+    const project = await this.projectsService.findOne(userId, id);
+    return apiResponse(200, { data: { project } });
+  }
+
   // FIX: add validation
   @Patch(':id')
   async update(

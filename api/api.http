@@ -52,7 +52,7 @@ GET {{BASE_URL}}/projects
 
 
 ### GET - /projects/:id
-GET {{BASE_URL}}/projects/cmlem5sco0000txcprj3q7ehe
+GET {{BASE_URL}}/projects/cmlxo7ljk0000v4cp538kwal1
 
 
 ### PATCH - /projects/:id

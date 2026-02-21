@@ -1,5 +1,6 @@
 import z from 'zod';
 import { CreateSchema, UpdateSchema } from './schema';
+import { ProjectStatus } from '../generated/prisma/enums';
 // ================ DTOs =================
 
 export type CreateDto = z.infer<typeof CreateSchema>;
@@ -24,4 +25,16 @@ export type FindAllResponse = {
 export type UpdateResponse = {
   id: string;
   name: string;
+};
+
+export type FindOneResponse = {
+  name: string;
+  id: string;
+  revoked: boolean;
+  expiredAt: Date | null;
+  lastUsedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+  status: ProjectStatus;
+  usedCount: number;
 };

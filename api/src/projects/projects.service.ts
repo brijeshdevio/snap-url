@@ -12,6 +12,7 @@ import {
   CreateDto,
   CreateResponse,
   FindAllResponse,
+  FindOneResponse,
   UpdateDto,
   UpdateResponse,
 } from './projects.types';
@@ -57,6 +58,21 @@ export class ProjectsService {
       },
     });
     return { projects };
+  }
+
+  async findOne(userId: string, id: string): Promise<FindOneResponse> {
+    const project = await this.prismaService.project.findFirst({
+      where: { userId, id },
+      omit: {
+        keyHash: true,
+        userId: true,
+      },
+    });
+    if (project) return project;
+
+    throw new ForbiddenException(
+      `You don't have access to this project. Please try again with a valid project id.`,
+    );
   }
 
   async update(
