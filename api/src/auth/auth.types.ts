@@ -1,18 +1,22 @@
+import z from 'zod';
 import { AuthProvider } from '../generated/prisma/enums';
+import { LoginSchema, RegisterSchema } from './schema';
 
-// =============== AUTH RESPONSES ===============
+// ================ DTOs =================
 
-export type BaseUserResponse = {
-  id: string;
-  email: string | null;
-  name: string | null;
-  createdAt: Date;
+export type LoginDto = z.infer<typeof LoginSchema>;
+export type RegisterDto = z.infer<typeof RegisterSchema>;
+
+export type FindOrCreateUserDto = {
+  email?: string;
+  name?: string;
+  authProvider: AuthProvider;
+  authId: string;
 };
 
-export type RegisterResponse = BaseUserResponse;
+// ================ Types =================
 
 export type LoginResponse = {
-  user: BaseUserResponse;
   accessToken: string;
   refreshToken: string;
 };
@@ -20,13 +24,4 @@ export type LoginResponse = {
 export type RefreshResponse = {
   accessToken: string;
   refreshToken: string;
-};
-
-// =============== AUTH DTOs ===============
-
-export type FindOrCreateUserDto = {
-  email?: string;
-  name?: string;
-  authProvider: AuthProvider;
-  authId: string;
 };

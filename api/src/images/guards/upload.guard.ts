@@ -8,7 +8,7 @@ import { Request } from 'express';
 import { ProjectsService } from '../../projects/projects.service';
 
 @Injectable()
-export class FileUploadGuard implements CanActivate {
+export class UploadGuard implements CanActivate {
   constructor(private readonly projectsService: ProjectsService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -20,8 +20,8 @@ export class FileUploadGuard implements CanActivate {
     }
 
     try {
-      const project = await this.projectsService.verifyUploadKey(token);
-      request['project'] = project;
+      const projectId = await this.projectsService.verifyKey(token);
+      request['project'] = { id: projectId };
     } catch {
       throw new ForbiddenException('Invalid or expired Upload key.');
     }

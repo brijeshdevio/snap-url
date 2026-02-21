@@ -9,18 +9,17 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { AuthGuard as PassportAuthGuard } from '@nestjs/passport';
-import { AuthGuard } from '../common/guards';
-import { ZodValidationPipe } from '../common/pipes';
-import { envConfig } from '../config';
-import { apiResponse, setCookie } from '../utils';
-import { AuthService } from './auth.service';
-import { LoginSchema, RegisterSchema } from './dto';
 import type { Response } from 'express';
-import type { LoginDto, RegisterDto } from './dto';
-import { COOKIE_NAME, EXPIRED_REFRESH_TOKEN } from '../constants';
-import { FindOrCreateUserDto } from './auth.types';
+import { JwtAuthGuard } from '../common/guards';
+import { CurrentUser } from '../common/decorators';
+import { ZodValidationPipe } from '../common/pipes';
+import { COOKIE_NAME, EXPIRED_REFRESH_TOKEN, MESSAGES } from '../constants';
+import { apiResponse, setCookie } from '../lib';
+import { LoginSchema, RegisterSchema } from './schema';
+import { AuthService } from './auth.service';
 import { RefreshTokenGuard } from './guards';
-import type { CurrentUser } from '../types';
+import type { FindOrCreateUserDto, LoginDto, RegisterDto } from './auth.types';
+import { envConfig } from 'src/config';
 
 @Controller('auth')
 export class AuthController {
@@ -28,31 +27,21 @@ export class AuthController {
 
   @Post('register')
   @UsePipes(new ZodValidationPipe(RegisterSchema))
-  async register(
-    @Body() body: RegisterDto,
-    @Res() res: Response,
-  ): Promise<Response> {
+  async register(@Body() body: RegisterDto) {
     await this.authService.register(body);
-    const message = 'Registered successfully';
-    return apiResponse(201, { message })(res);
+    return apiResponse(201, { message: MESSAGES.USER_CREATION_SUCCESS });
   }
 
   @Post('login')
   @UsePipes(new ZodValidationPipe(LoginSchema))
   async login(@Body() body: LoginDto, @Res() res: Response): Promise<Response> {
-    const { accessToken, refreshToken, user } =
-      await this.authService.login(body);
+    const { accessToken, refreshToken } = await this.authService.login(body);
     setCookie(COOKIE_NAME.ACCESS_TOKEN, accessToken, res);
     setCookie(COOKIE_NAME.REFRESH_TOKEN, refreshToken, res, {
       path: '/api/auth/refresh',
       maxAge: EXPIRED_REFRESH_TOKEN,
     });
-    const message = 'Logged in successfully';
-    return apiResponse(200, {
-      data: { user },
-      rest: { accessToken, refreshToken },
-      message,
-    })(res);
+    return res.status(200).json({ message: MESSAGES.USER_LOGIN_SUCCESS });
   }
 
   @Post('refresh')
@@ -60,25 +49,25 @@ export class AuthController {
   async refresh(
     @Req() req: { [COOKIE_NAME.REFRESH_TOKEN]: string },
     @Res() res: Response,
-  ): Promise<Response> {
-    const { accessToken } = await this.authService.refresh(
+  ) {
+    const { accessToken, refreshToken } = await this.authService.refresh(
       req[COOKIE_NAME.REFRESH_TOKEN],
     );
     setCookie(COOKIE_NAME.ACCESS_TOKEN, accessToken, res);
-    return apiResponse(200, { rest: { accessToken } })(res);
+    setCookie(COOKIE_NAME.REFRESH_TOKEN, refreshToken, res, {
+      path: '/api/auth/refresh',
+      maxAge: EXPIRED_REFRESH_TOKEN,
+    });
+    return res.status(200).json({ message: MESSAGES.TOKEN_REFRESH_SUCCESS });
   }
 
   @Post('logout')
-  @UseGuards(AuthGuard)
-  async logout(
-    @Req() req: CurrentUser,
-    @Res() res: Response,
-  ): Promise<Response> {
-    await this.authService.logout(req.user.id);
+  @UseGuards(JwtAuthGuard)
+  async logout(@CurrentUser('sub') userId: string, @Res() res: Response) {
+    await this.authService.logout(userId);
     res.clearCookie(COOKIE_NAME.ACCESS_TOKEN);
     res.clearCookie(COOKIE_NAME.REFRESH_TOKEN);
-    const message = 'Logged out successfully';
-    return apiResponse(200, { message })(res);
+    return res.status(200).json({ message: MESSAGES.USER_LOGOUT_SUCCESS });
   }
 
   @Get('github')

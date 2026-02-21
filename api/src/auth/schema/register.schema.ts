@@ -13,5 +13,3 @@ export const RegisterSchema = z
       .max(30, 'Password must be at most 30 characters'),
   })
   .strict();
-
-export type RegisterDto = z.infer<typeof RegisterSchema>;

@@ -4,113 +4,44 @@ import {
   Delete,
   Get,
   Param,
-  Patch,
   Post,
-  Query,
-  Req,
-  Res,
   UseGuards,
-  UsePipes,
 } from '@nestjs/common';
-import { AuthGuard } from '../common/guards';
+import { CurrentUser } from '../common/decorators';
 import { ZodValidationPipe } from '../common/pipes';
-import { apiResponse } from '../utils';
+import { JwtAuthGuard } from '../common/guards';
+import { MESSAGES } from '../constants';
+import { apiResponse } from '../lib';
+import { CreateSchema } from './schema';
 import { ProjectsService } from './projects.service';
-import {
-  CreateProjectSchema,
-  QueryProjectSchema,
-  UpdateProjectSchema,
-} from './dto';
-import type { Response } from 'express';
-import type { CurrentUser } from '../types';
-import type {
-  CreateProjectDto,
-  QueryProjectDto,
-  UpdateProjectDto,
-} from './dto';
+import type { CreateDto } from './projects.types';
 
 @Controller('projects')
-@UseGuards(AuthGuard)
+@UseGuards(JwtAuthGuard)
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
   @Post()
-  @UsePipes(new ZodValidationPipe(CreateProjectSchema))
-  async handleCreateProject(
-    @Req() req: CurrentUser,
-    @Body() body: CreateProjectDto,
-    @Res() res: Response,
-  ): Promise<Response> {
-    const userId = req.user.id;
-    const project = await this.projectsService.createProject(userId, body);
-    const message = 'Project created successfully.';
-    return apiResponse(201, { data: { project }, message })(res);
+  async create(
+    @CurrentUser('sub') userId: string,
+    @Body(new ZodValidationPipe(CreateSchema)) body: CreateDto,
+  ) {
+    const project = await this.projectsService.create(userId, body);
+    return apiResponse(201, {
+      data: { project },
+      message: MESSAGES.PROJECT_CREATION_SUCCESS,
+    });
   }
 
   @Get()
-  async handleGetProjects(
-    @Req() req: CurrentUser,
-    @Query(new ZodValidationPipe(QueryProjectSchema)) query: QueryProjectDto,
-    @Res() res: Response,
-  ): Promise<Response> {
-    const data = await this.projectsService.getProjects(req.user.id, query);
-    return apiResponse(200, { data })(res);
+  async findAll(@CurrentUser('sub') userId: string) {
+    const data = await this.projectsService.findAll(userId);
+    return apiResponse(200, { data });
   }
 
-  @Get(':projectId')
-  async handleGetProject(
-    @Req() req: CurrentUser,
-    @Param('projectId') projectId: string,
-    @Res() res: Response,
-  ): Promise<Response> {
-    const project = await this.projectsService.getProject(
-      req.user.id,
-      projectId,
-    );
-    return apiResponse(200, { data: { project } })(res);
-  }
-
-  @Patch(':projectId')
-  async handleUpdateProject(
-    @Req() req: CurrentUser,
-    @Param('projectId') projectId: string,
-    @Body(new ZodValidationPipe(UpdateProjectSchema)) body: UpdateProjectDto,
-    @Res() res: Response,
-  ): Promise<Response> {
-    const project = await this.projectsService.updateProject(
-      req.user.id,
-      projectId,
-      body,
-    );
-    const message = 'Project updated successfully.';
-    return apiResponse(200, { data: { project }, message })(res);
-  }
-
-  @Patch(':projectId/revoke')
-  async handleRevokeProject(
-    @Req() req: CurrentUser,
-    @Param('projectId') projectId: string,
-    @Res() res: Response,
-  ): Promise<Response> {
-    const project = await this.projectsService.revokeProject(
-      req.user.id,
-      projectId,
-    );
-    const message = 'Project revoked successfully.';
-    return apiResponse(200, { data: { project }, message })(res);
-  }
-
-  @Delete(':projectId')
-  async handleDeleteProject(
-    @Req() req: CurrentUser,
-    @Param('projectId') projectId: string,
-    @Res() res: Response,
-  ): Promise<Response> {
-    const project = await this.projectsService.deleteProject(
-      req.user.id,
-      projectId,
-    );
-    const message = 'Project deleted successfully.';
-    return apiResponse(200, { data: { project }, message })(res);
+  @Delete(':id')
+  async delete(@CurrentUser('sub') userId: string, @Param('id') id: string) {
+    await this.projectsService.delete(userId, id);
+    return apiResponse(200, { message: MESSAGES.PROJECT_DELETE_SUCCESS });
   }
 }

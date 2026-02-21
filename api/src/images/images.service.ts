@@ -1,169 +1,98 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
-import { generateSignKey } from '../utils';
-import type { SaveImage } from '../types';
-import type { QueryImageDto } from './dto';
-import { Image } from '../generated/prisma/client';
-
-type ImagesResponse = {
-  images: {
-    id: string;
-    name: string;
-    size: number;
-    mimeType: string;
-    createdAt: Date;
-  }[];
-  pagination: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-    hasNext: boolean;
-    hasPrev: boolean;
-  };
-};
+import { PRISMA_ERROR_CODES } from '../constants';
+import { randomString } from '../lib';
+import { CreateResponse, FindAllResponse } from './images.types';
 
 @Injectable()
 export class ImagesService {
+  private prefix = 'img_';
+
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly prismaService: PrismaService,
     private readonly storageService: StorageService,
   ) {}
 
-  private async getSignKey(): Promise<string> {
-    const signKey = generateSignKey();
-    const existingSignKey = await this.prisma.image.findUnique({
-      where: { signKey },
-    });
-    if (existingSignKey) {
-      return await this.getSignKey();
-    }
-    return signKey;
+  private generateImageId() {
+    return this.prefix + randomString(6);
   }
 
-  async saveImage(
-    userId: string,
+  async upload(
     projectId: string,
     file: Express.Multer.File,
-  ): Promise<SaveImage> {
-    const { storage, ...uploadedImage } =
-      await this.storageService.uploadImage(file);
-    const signKey = await this.getSignKey();
-    await this.prisma.image.create({
-      data: {
-        signKey,
-        userId,
-        projectId,
-        storage,
-        ...uploadedImage,
-      },
-    });
-    return { ...uploadedImage, signKey };
-  }
-
-  async getImages(
-    userId: string,
-    query: QueryImageDto,
-  ): Promise<ImagesResponse> {
-    const page = parseInt(query.page || '1');
-    const limit = parseInt(query.limit || '10');
-    const skip = (page - 1) * limit;
-
-    const where = {
-      userId,
-      ...(query.q && { name: { contains: query.q } }),
-    };
-
-    const [images, total] = await Promise.all([
-      this.prisma.image.findMany({
-        where,
-        select: {
-          id: true,
-          name: true,
-          size: true,
-          mimeType: true,
-          createdAt: true,
-        },
-        skip,
-        take: limit,
-      }),
-      this.prisma.image.count({ where }),
-    ]);
-
-    const totalPages = Math.ceil(total / limit);
-
-    return {
-      images,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages,
-        hasNext: page < totalPages,
-        hasPrev: page > 1,
-      },
-    };
-  }
-
-  async getImage(
-    userId: string,
-    imageId: string,
-  ): Promise<Omit<Image, 'projectId' | 'userId'>> {
-    const image = await this.prisma.image.findUnique({
-      where: { userId, id: imageId },
-      omit: { projectId: true, userId: true },
-      include: {
-        project: { select: { id: true, name: true, expiredAt: true } },
-      },
-    });
-    if (!image) {
-      throw new NotFoundException(`Image with id ${imageId} not found.`);
-    }
-    return image;
-  }
-
-  async viewImage(signKey: string): Promise<ArrayBuffer> {
-    const image = await this.prisma.image.findUnique({ where: { signKey } });
-    if (!image) {
-      throw new NotFoundException(`Image not found.`);
-    }
-
-    const file = await this.storageService.viewImage(image.storage);
-    return file;
-  }
-
-  async deleteImage(userId: string, imageId: string): Promise<Image> {
+  ): Promise<CreateResponse> {
     try {
-      const image = await this.prisma.image.findUnique({
-        where: { userId, id: imageId },
+      const imgId = this.generateImageId();
+      const uploadedImage = await this.storageService.upload(imgId, file);
+      await this.prismaService.image.create({
+        data: {
+          name: uploadedImage.name,
+          storage: uploadedImage.$id,
+          mimeType: uploadedImage.mimeType,
+          size: uploadedImage.sizeOriginal,
+          projectId: projectId,
+          key: imgId,
+        },
       });
-      if (image && image.storage) {
-        await this.storageService.deleteImage(image.storage);
-        await this.prisma.image.delete({ where: { userId, id: imageId } });
-        return image;
+      return {
+        id: imgId,
+        name: uploadedImage.name,
+        mimeType: uploadedImage.mimeType,
+        size: uploadedImage.sizeOriginal,
+        createdAt: uploadedImage.$createdAt,
+      };
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === PRISMA_ERROR_CODES.NOT_FOUND) {
+          throw new ForbiddenException(
+            `You don't have access to this upload api key.`,
+          );
+        }
       }
-
-      throw new NotFoundException(`Image with id ${imageId} not found.`);
-    } catch (error: unknown) {
-      const NOT_FOUND_CODE = 'P2025';
-      const err = error as { code: string };
-      if (err?.code === NOT_FOUND_CODE) {
-        throw new NotFoundException(`Image with id ${imageId} not found.`);
-      }
-      throw error;
+      throw new InternalServerErrorException();
     }
   }
 
-  async downloadImage(signKey: string): Promise<ArrayBuffer> {
-    const image = await this.prisma.image.findUnique({
-      where: { signKey },
-      select: { storage: true },
+  async findAll(userId: string): Promise<FindAllResponse> {
+    const images = await this.prismaService.image.findMany({
+      where: { project: { userId } },
+      select: {
+        id: true,
+        key: true,
+        name: true,
+        size: true,
+        mimeType: true,
+        createdAt: true,
+      },
     });
-    if (!image) {
-      throw new NotFoundException(`Image with signKey ${signKey} not found.`);
+    return { images };
+  }
+
+  async preview(imgId: string): Promise<ArrayBuffer> {
+    return await this.storageService.preview(imgId);
+  }
+
+  async delete(userId: string, id: string): Promise<void> {
+    try {
+      await this.prismaService.image.update({
+        where: { id, project: { userId } },
+        data: { deletedAt: new Date() },
+      });
+    } catch (error: unknown) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === PRISMA_ERROR_CODES.NOT_FOUND) {
+          throw new ForbiddenException(
+            `You don't have access to this Image. Please try again with a valid project id.`,
+          );
+        }
+      }
+      throw new InternalServerErrorException();
     }
-    const file = await this.storageService.downloadImage(image.storage);
-    return file;
   }
 }

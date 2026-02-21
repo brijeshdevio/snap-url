@@ -1,22 +1,17 @@
-import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '../common/guards';
-import { apiResponse } from '../utils';
+import { Controller, Get, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../common/guards';
+import { CurrentUser } from '../common/decorators';
+import { apiResponse } from '../lib';
 import { UsersService } from './users.service';
-import type { Response } from 'express';
-import type { CurrentUser } from '../types';
 
 @Controller('users')
-@UseGuards(AuthGuard)
+@UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get('me')
-  async handleGetMe(
-    @Req() req: CurrentUser,
-    @Res() res: Response,
-  ): Promise<Response> {
-    const userId = req.user.id;
-    const user = await this.usersService.getMe(userId);
-    return apiResponse(200, { data: { user } })(res);
+  async findById(@CurrentUser('sub') userId: string) {
+    const user = await this.usersService.findById(userId);
+    return apiResponse(200, { data: { user } });
   }
 }

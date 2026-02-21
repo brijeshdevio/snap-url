@@ -10,14 +10,37 @@ export function setCookie(
   options?: CookieOptions,
 ): void {
   res.cookie(key, token, {
-    httpOnly: true,
+    httpOnly: isProd,
     secure: isProd,
     sameSite: isProd ? 'strict' : 'lax',
-    maxAge: 30 * 60 * 1000,
+    maxAge: 15 * 60 * 1000,
     ...options,
   });
 }
 
 export function clearCookie(key: string, res: Response): void {
   res.clearCookie(key);
+}
+
+export function apiResponse<D, R>(
+  statusCode: number = 200,
+  {
+    data,
+    rest = {},
+    message,
+    success = true,
+  }: {
+    data?: D;
+    rest?: R | { [key: string]: any };
+    message?: string;
+    success?: boolean;
+  },
+) {
+  return {
+    success,
+    statusCode,
+    data,
+    message,
+    ...rest,
+  };
 }

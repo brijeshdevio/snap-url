@@ -25,21 +25,22 @@ model User {
   authProvider AuthProvider @default(email)
   authId       String?
 
-  sessions      Session[]
-  projects      Project[]
-  images        Image[]
+  sessions Session[]
+  projects Project[]
+
+  @@index([email])
 }
 
 model Session {
-  id           String   @id @default(uuid())
-  userId       String
-  createdAt    DateTime @default(now())
-  expiresAt    DateTime
+  id        String   @id @default(uuid())
+  userId    String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
 
-  ipAddress    String?
-  userAgent    String?
+  ipAddress String?
+  userAgent String?
 
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   refreshTokens RefreshToken[]
 
   @@index([userId])
@@ -47,16 +48,16 @@ model Session {
 }
 
 model RefreshToken {
-  id           String   @id @default(uuid())
-  tokenHash    String   @unique
-  sessionId    String
-  createdAt    DateTime @default(now())
-  expiresAt    DateTime
+  id        String   @id @default(uuid())
+  tokenHash String   @unique
+  sessionId String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
 
-  session      Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
-  @@index([sessionId])
-  @@index([expiresAt])
+  @@unique([sessionId, tokenHash])
+  @@index([tokenHash, expiresAt])
 }
 
 enum AuthProvider {
@@ -70,7 +71,6 @@ model Project {
   name       String
   keyHash    String        @unique
   revoked    Boolean       @default(false)
-  revokedAt  DateTime?
   expiredAt  DateTime?
   lastUsedAt DateTime?
   createdAt  DateTime      @default(now())
@@ -82,6 +82,7 @@ model Project {
   user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   images Image[]
 
+  @@unique([userId, name])
   @@index([userId, name])
 }
 
@@ -93,18 +94,16 @@ enum ProjectStatus {
 
 model Image {
   id        String    @id @default(cuid())
-  signKey   String    @unique
+  key       String    @unique
   storage   String    @unique
   name      String
   mimeType  String
   size      Int
   deletedAt DateTime?
   createdAt DateTime  @default(now())
-  userId    String
   projectId String
 
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  @@index([userId, projectId])
+  @@index([key])
 }

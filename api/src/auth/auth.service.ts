@@ -1,7 +1,5 @@
-import { randomBytes, createHash } from 'node:crypto';
 import {
   ConflictException,
-  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   UnauthorizedException,
@@ -9,87 +7,36 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 import { PrismaService } from '../prisma/prisma.service';
-import { comparePassword, hashPassword } from '../utils';
-import { PRISMA_ERROR_CODES } from '../constants';
-import type { LoginDto, RegisterDto } from './dto';
+import {
+  comparePassword,
+  hashPassword,
+  randomString,
+  stringHash,
+} from '../lib';
+import { DUMMY_HASH, PRISMA_ERROR_CODES } from '../constants';
 import {
   FindOrCreateUserDto,
+  LoginDto,
   LoginResponse,
   RefreshResponse,
-  RegisterResponse,
+  RegisterDto,
 } from './auth.types';
 
 @Injectable()
 export class AuthService {
+  private readonly Day = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  private readonly Week = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
   ) {}
 
-  private readonly Day = new Date(Date.now() + 24 * 60 * 60 * 1000);
-  private readonly Week = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-
-  private randomString(): string {
-    return randomBytes(128).toString('hex');
-  }
-
-  private tokenHash(token: string): string {
-    return createHash('sha256').update(token).digest('hex');
-  }
-
-  private async generateAccessToken(userId: string): Promise<string> {
-    const payload = { id: userId };
-    return await this.jwtService.signAsync(payload);
-  }
-
-  async register(data: RegisterDto): Promise<RegisterResponse> {
-    try {
-      const passwordHash = await hashPassword(data.password);
-      return await this.prisma.user.create({
-        data: {
-          name: data.name,
-          email: data.email,
-          passwordHash,
-        },
-        select: { id: true, email: true, name: true, createdAt: true },
-      });
-    } catch (error: unknown) {
-      const CONFLICT_ERROR_CODE = 'P2002';
-      const err = error as { code: string };
-      if (err?.code === CONFLICT_ERROR_CODE) {
-        throw new ConflictException(`${data.email} already exists.`);
-      }
-
-      throw error;
-    }
-  }
-
-  async login(data: LoginDto): Promise<LoginResponse> {
-    const user = await this.prisma.user.findUnique({
-      where: { email: data.email },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        createdAt: true,
-        passwordHash: true,
-      },
-    });
-    if (!user || !user?.passwordHash) {
-      throw new UnauthorizedException('Invalid credentials.');
-    }
-
-    const { passwordHash, ...safeUser } = user;
-
-    const isValidPassword = await comparePassword(passwordHash, data.password);
-    if (!isValidPassword && passwordHash) {
-      throw new UnauthorizedException('Invalid credentials.');
-    }
-    const refreshToken = this.randomString();
-    const tokenHash = this.tokenHash(refreshToken);
+  private async refreshToken(userId: string): Promise<string> {
+    const refreshToken = randomString();
+    const tokenHash = stringHash(refreshToken);
     await this.prisma.session.create({
       data: {
-        userId: safeUser.id,
+        userId,
         expiresAt: this.Week,
         refreshTokens: {
           create: {
@@ -99,13 +46,109 @@ export class AuthService {
         },
       },
     });
-    const accessToken = await this.generateAccessToken(safeUser.id);
-    return { accessToken, user: safeUser, refreshToken };
+    return refreshToken;
+  }
+
+  private async accessToken(userId: string): Promise<string> {
+    return await this.jwtService.signAsync({
+      sub: userId,
+      type: 'access',
+    });
+  }
+
+  async register(data: RegisterDto): Promise<void> {
+    try {
+      const passwordHash = await hashPassword(data.password);
+      await this.prisma.user.create({
+        data: {
+          name: data.name,
+          email: data.email,
+          passwordHash,
+        },
+      });
+    } catch (error: unknown) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === PRISMA_ERROR_CODES.CONFLICT) {
+          throw new ConflictException(
+            `${data.email} already exists. Please try a different email.`,
+          );
+        }
+      }
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async login(data: LoginDto): Promise<LoginResponse> {
+    const user = await this.prisma.user.findUnique({
+      where: { email: data.email },
+    });
+
+    const passwordToCheck: string = user?.passwordHash ?? DUMMY_HASH;
+    const isPasswordValid = await comparePassword(
+      passwordToCheck,
+      data.password,
+    );
+
+    if (!user || !isPasswordValid) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    const refreshToken = await this.refreshToken(user.id);
+    const accessToken = await this.accessToken(user.id);
+    return { accessToken, refreshToken };
+  }
+
+  async refresh(token: string): Promise<RefreshResponse> {
+    try {
+      const tokenHash = stringHash(token);
+      const refreshToken = randomString();
+      const newTokenHash = stringHash(refreshToken);
+      const { session } = await this.prisma.refreshToken.update({
+        where: {
+          tokenHash,
+          expiresAt: { gt: new Date() },
+          session: {
+            expiresAt: { gt: new Date() },
+          },
+        },
+        data: {
+          tokenHash: newTokenHash,
+          expiresAt: this.Day,
+        },
+        select: { session: { select: { user: { select: { id: true } } } } },
+      });
+
+      const accessToken = await this.accessToken(session.user.id);
+
+      return { accessToken, refreshToken };
+    } catch (error: unknown) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === PRISMA_ERROR_CODES.NOT_FOUND) {
+          throw new UnauthorizedException(
+            'Invalid or expired refresh token. Please login again.',
+          );
+        }
+      }
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async logout(token: string): Promise<void> {
+    const tokenHash = stringHash(token);
+    await this.prisma.session.deleteMany({
+      where: {
+        refreshTokens: {
+          some: {
+            tokenHash,
+          },
+        },
+      },
+    });
   }
 
   async findOrCreateUser(data: FindOrCreateUserDto): Promise<RefreshResponse> {
-    const refreshToken = this.randomString();
-    const tokenHash = this.tokenHash(refreshToken);
+    const refreshToken = randomString();
+    const tokenHash = stringHash(refreshToken);
+
     const user = await this.prisma.user.findUnique({
       where: { email: data.email, authId: data.authId },
       select: {
@@ -113,23 +156,8 @@ export class AuthService {
       },
     });
     if (user) {
-      await this.prisma.user.update({
-        where: { id: user.id },
-        data: {
-          sessions: {
-            create: {
-              expiresAt: this.Week,
-              refreshTokens: {
-                create: {
-                  tokenHash,
-                  expiresAt: this.Day,
-                },
-              },
-            },
-          },
-        },
-      });
-      const accessToken = await this.generateAccessToken(user.id);
+      const accessToken = await this.accessToken(user.id);
+      const refreshToken = await this.refreshToken(user.id);
       return { accessToken, refreshToken };
     }
 
@@ -156,56 +184,7 @@ export class AuthService {
       },
     });
 
-    const accessToken = await this.generateAccessToken(newUser.id);
+    const accessToken = await this.accessToken(newUser.id);
     return { accessToken, refreshToken };
-  }
-
-  async refresh(token: string): Promise<RefreshResponse> {
-    try {
-      const decodedTokenHash = this.tokenHash(token);
-      const newRefreshToken = this.randomString();
-      const newTokenHash = this.tokenHash(newRefreshToken);
-
-      const refreshToken = await this.prisma.refreshToken.update({
-        where: {
-          expiresAt: { gt: new Date() },
-          tokenHash: decodedTokenHash,
-          session: {
-            expiresAt: { gt: new Date() },
-          },
-        },
-        data: {
-          expiresAt: this.Day,
-          tokenHash: newTokenHash,
-        },
-        select: {
-          session: {
-            select: {
-              userId: true,
-            },
-          },
-        },
-      });
-      const accessToken = await this.generateAccessToken(
-        refreshToken.session.userId,
-      );
-      return { accessToken, refreshToken: newRefreshToken };
-    } catch (error: unknown) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        if (error.code === PRISMA_ERROR_CODES.NOT_FOUND) {
-          throw new ForbiddenException('Invalid or expired refresh token.');
-        }
-      }
-      throw new InternalServerErrorException('Failed to rotate refresh token.');
-    }
-  }
-
-  async logout(userId: string): Promise<void> {
-    await this.prisma.session.deleteMany({
-      where: {
-        expiresAt: { gt: new Date() },
-        userId,
-      },
-    });
   }
 }

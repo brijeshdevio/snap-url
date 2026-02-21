@@ -1,21 +1,14 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-
-type User = {
-  id: string;
-  email: string | null;
-  name: string | null;
-  avatarUrl: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-};
+import { MESSAGES } from '../constants';
+import { FindByIdResponse } from './users.types';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getMe(userId: string): Promise<User> {
-    const user = await this.prisma.user.findUnique({
+  async findById(userId: string): Promise<FindByIdResponse> {
+    const user = await this.prisma.user.findFirst({
       where: { id: userId },
       select: {
         id: true,
@@ -28,6 +21,6 @@ export class UsersService {
     });
     if (user) return user;
 
-    throw new UnauthorizedException('You are not logged in.');
+    throw new UnauthorizedException(MESSAGES.UNAUTHORIZED);
   }
 }

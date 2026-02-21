@@ -7,7 +7,6 @@ export class ZodValidationPipe implements PipeTransform {
 
   transform(value: unknown) {
     const result = this.schema.safeParse(value);
-
     if (!result.success) {
       const formattedErrors = result.error.issues.map((err) => ({
         field: err.path.join('.'),

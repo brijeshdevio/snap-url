@@ -1,67 +1,60 @@
-// storage.service.ts
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { ID } from 'node-appwrite';
+import { Injectable } from '@nestjs/common';
+import { AppwriteException, Models } from 'node-appwrite';
 import { InputFile } from 'node-appwrite/file';
 import { envConfig, storage } from '../config';
-// types
-import type { Storage } from 'node-appwrite';
 
-type UploadImage = {
-  storage: string;
-  name: string;
-  size: number;
-  mimeType: string;
-};
+@Injectable()
+export class Appwrite {
+  private storage = storage;
+
+  async upload(
+    fileId: string,
+    inputImage: Express.Multer.File,
+  ): Promise<Models.File> {
+    const file = InputFile.fromBuffer(
+      inputImage.buffer,
+      inputImage.originalname,
+    );
+    return await this.storage.createFile({
+      bucketId: envConfig.APPWRITE_BUCKET_ID,
+      file,
+      fileId,
+    });
+  }
+
+  async preview(imageId: string): Promise<ArrayBuffer> {
+    try {
+      return await this.storage.getFileView(
+        envConfig.APPWRITE_BUCKET_ID,
+        imageId,
+      );
+    } catch (error: unknown) {
+      if (error instanceof AppwriteException) {
+        return await this.storage.getFileView(
+          envConfig.APPWRITE_BUCKET_ID,
+          envConfig.APPWRITE_NOT_FOUND,
+        );
+      }
+      return await this.storage.getFileView(
+        envConfig.APPWRITE_BUCKET_ID,
+        envConfig.APPWRITE_NOT_FOUND,
+      );
+    }
+  }
+}
 
 @Injectable()
 export class StorageService {
-  private storage: Storage;
+  constructor(private readonly storage: Appwrite) {}
 
-  constructor() {
-    this.storage = storage;
+  async upload(
+    fileId: string,
+    file: Express.Multer.File,
+  ): Promise<Models.File> {
+    return await this.storage.upload(fileId, file);
   }
 
-  async uploadImage(file: Express.Multer.File): Promise<UploadImage> {
-    try {
-      const inputFile = InputFile.fromBuffer(file.buffer, file.originalname);
-
-      const result = await this.storage.createFile({
-        bucketId: envConfig.APPWRITE_BUCKET_ID,
-        fileId: ID.unique(),
-        file: inputFile,
-      });
-
-      return {
-        storage: result.$id,
-        name: result.name,
-        size: result.sizeOriginal,
-        mimeType: result.mimeType,
-      };
-    } catch (error: any) {
-      throw new BadRequestException(`Failed to upload file: ${error?.message}`);
-    }
-  }
-
-  async viewImage(fileId: string): Promise<ArrayBuffer> {
-    const file = await this.storage.getFileView({
-      bucketId: envConfig.APPWRITE_BUCKET_ID,
-      fileId,
-    });
-    return file;
-  }
-
-  async deleteImage(fileId: string): Promise<void> {
-    await this.storage.deleteFile({
-      bucketId: envConfig.APPWRITE_BUCKET_ID,
-      fileId,
-    });
-  }
-
-  async downloadImage(fileId: string): Promise<ArrayBuffer> {
-    const file = await this.storage.getFileDownload({
-      bucketId: envConfig.APPWRITE_BUCKET_ID,
-      fileId,
-    });
-    return file;
+  async preview(imageId: string): Promise<ArrayBuffer> {
+    return await this.storage.preview(imageId);
   }
 }

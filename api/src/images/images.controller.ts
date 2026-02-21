@@ -4,115 +4,70 @@ import {
   Get,
   Param,
   Post,
-  Query,
-  Req,
   Res,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { envConfig } from '../config';
-import { AuthGuard } from '../common/guards';
-import { ZodValidationPipe } from '../common/pipes';
-import { apiResponse } from '../utils';
+import { apiResponse } from '../lib';
+import { MESSAGES } from '../constants';
 import { ImagesService } from './images.service';
-import { FileUploadGuard } from './guards/file-upload.guard';
-import { fileValidationGuard } from './guards/file-validation.guard';
-import { QueryImageSchema } from './dto';
+import { ProjectId } from './decorators';
+import { UploadGuard } from './guards';
+import { fileValidation, getUrl } from './images.lib';
+import { JwtAuthGuard } from '../common/guards';
+import { CurrentUser } from '../common/decorators';
 import type { Response } from 'express';
-import type { CurrentUser, FileUploadAuth } from '../types';
-import type { QueryImageDto } from './dto';
+import { envConfig } from '../config';
 
 @Controller('images')
 export class ImagesController {
   constructor(private readonly imagesService: ImagesService) {}
 
   @Post('upload')
-  @UseGuards(FileUploadGuard)
+  @UseGuards(UploadGuard)
   @UseInterceptors(FileInterceptor('file'))
-  async handleUploadImage(
-    @Req() req: FileUploadAuth,
+  async upload(
+    @ProjectId() projectId: string,
     @UploadedFile() file: Express.Multer.File,
-    @Res() res: Response,
-  ): Promise<Response> {
-    fileValidationGuard(file);
-    const image = await this.imagesService.saveImage(
-      req.project.userId,
-      req.project.id,
-      file,
-    );
-    const url = `${envConfig.APP_URL}/images/view/${image.signKey}`;
-    const message = 'Image uploaded successfully.';
+  ) {
+    fileValidation(file);
+    const image = await this.imagesService.upload(projectId, file);
+    const url = getUrl(image.id);
     return apiResponse(201, {
-      data: { image: { ...image, url } },
-      message,
-    })(res);
+      data: {
+        url,
+        ...image,
+      },
+      message: MESSAGES.IMAGE_UPLOAD_SUCCESS,
+    });
   }
 
-  @Get()
-  @UseGuards(AuthGuard)
-  async handleGetImages(
-    @Req() req: CurrentUser,
-    @Query(new ZodValidationPipe(QueryImageSchema)) query: QueryImageDto,
-    @Res() res: Response,
-  ): Promise<Response> {
-    const userId = req.user.id;
-    const data = await this.imagesService.getImages(userId, query);
-    return apiResponse(200, { data })(res);
-  }
-
-  @Get('view/:signKey')
-  async handleViewImage(
-    @Param('signKey') signKey: string,
-    @Res() res: Response,
-  ): Promise<any> {
-    const data = await this.imagesService.viewImage(signKey);
+  @Get(':id')
+  async preview(@Param('id') id: string, @Res() res: Response): Promise<any> {
+    const data = await this.imagesService.preview(id);
     const buffer = Buffer.from(data);
     res.setHeader('Content-Type', 'image/jpeg');
     res.setHeader('Content-Length', buffer.length);
     res.setHeader('Content-Disposition', 'inline');
+    res.setHeader('Cache-Control', 'max-age=900');
     res.setHeader('Access-Control-Allow-Origin', envConfig.FRONTEND_URL);
     res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
     res.end(buffer);
   }
 
-  @Get(':imageId')
-  @UseGuards(AuthGuard)
-  async handleGetImage(
-    @Req() req: CurrentUser,
-    @Param('imageId') imageId: string,
-    @Res() res: Response,
-  ): Promise<Response> {
-    const userId = req.user.id;
-    const image = await this.imagesService.getImage(userId, imageId);
-    return apiResponse(200, { data: { image } })(res);
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  async findAll(@CurrentUser('sub') userId: string) {
+    const data = await this.imagesService.findAll(userId);
+    return apiResponse(200, { data });
   }
 
-  @Delete(':imageId')
-  @UseGuards(AuthGuard)
-  async handleDeleteImage(
-    @Req() req: CurrentUser,
-    @Param('imageId') imageId: string,
-    @Res() res: Response,
-  ): Promise<Response> {
-    const image = await this.imagesService.deleteImage(req.user.id, imageId);
-    const message = 'Image deleted successfully.';
-    return apiResponse(200, { data: { image }, message })(res);
-  }
-
-  @Get('download/:signKey')
-  async handleDownloadImage(
-    @Param('signKey') signKey: string,
-    @Res() res: Response,
-  ): Promise<void> {
-    const image = await this.imagesService.downloadImage(signKey);
-    const buffer = Buffer.from(image);
-    res.setHeader('Content-Type', 'image/jpeg');
-    res.setHeader('Content-Length', buffer.length);
-    res.setHeader('Content-Disposition', 'attachment');
-    res.setHeader('Access-Control-Allow-Origin', envConfig.FRONTEND_URL);
-    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-    res.end(buffer);
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  async delete(@CurrentUser('sub') userId: string, @Param('id') id: string) {
+    await this.imagesService.delete(userId, id);
+    return apiResponse(200, { message: MESSAGES.IMAGE_DELETE_SUCCESS });
   }
 }
