@@ -60,7 +60,7 @@ PATCH {{BASE_URL}}/projects/cmlxo7ljk0000v4cp538kwal1
 Content-Type: application/json
 
 {
-    "name": "SnippetX"
+    "name": "SnapURL"
 }
 
 

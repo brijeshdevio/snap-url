@@ -20,3 +20,8 @@ export type FindAllResponse = {
     expiredAt: Date | null;
   }[];
 };
+
+export type UpdateResponse = {
+  id: string;
+  name: string;
+};

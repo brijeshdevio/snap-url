@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -14,7 +15,7 @@ import { MESSAGES } from '../constants';
 import { apiResponse } from '../lib';
 import { CreateSchema } from './schema';
 import { ProjectsService } from './projects.service';
-import type { CreateDto } from './projects.types';
+import type { CreateDto, UpdateDto } from './projects.types';
 
 @Controller('projects')
 @UseGuards(JwtAuthGuard)
@@ -37,6 +38,20 @@ export class ProjectsController {
   async findAll(@CurrentUser('sub') userId: string) {
     const data = await this.projectsService.findAll(userId);
     return apiResponse(200, { data });
+  }
+
+  // FIX: add validation
+  @Patch(':id')
+  async update(
+    @CurrentUser('sub') userId: string,
+    @Param('id') id: string,
+    @Body() body: UpdateDto,
+  ) {
+    const project = await this.projectsService.update(userId, id, body);
+    return apiResponse(200, {
+      data: { project },
+      message: MESSAGES.PROJECT_UPDATE_SUCCESS,
+    });
   }
 
   @Delete(':id')

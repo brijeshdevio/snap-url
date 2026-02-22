@@ -8,7 +8,13 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { PRISMA_ERROR_CODES } from '../constants';
 import { randomString, stringHash } from '../lib';
-import { CreateDto, CreateResponse, FindAllResponse } from './projects.types';
+import {
+  CreateDto,
+  CreateResponse,
+  FindAllResponse,
+  UpdateDto,
+  UpdateResponse,
+} from './projects.types';
 
 @Injectable()
 export class ProjectsService {
@@ -51,6 +57,34 @@ export class ProjectsService {
       },
     });
     return { projects };
+  }
+
+  async update(
+    userId: string,
+    id: string,
+    data: UpdateDto,
+  ): Promise<UpdateResponse> {
+    try {
+      return await this.prismaService.project.update({
+        where: { userId, id },
+        data: {
+          name: data.name,
+        },
+        select: {
+          id: true,
+          name: true,
+        },
+      });
+    } catch (error: unknown) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === PRISMA_ERROR_CODES.NOT_FOUND) {
+          throw new ForbiddenException(
+            `You don't have access to this project. Please try again with a valid project id.`,
+          );
+        }
+      }
+      throw new InternalServerErrorException();
+    }
   }
 
   async delete(userId: string, id: string): Promise<void> {
