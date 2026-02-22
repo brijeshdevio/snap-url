@@ -10,16 +10,14 @@ import {
 } from '@nestjs/common';
 import { AuthGuard as PassportAuthGuard } from '@nestjs/passport';
 import type { Response } from 'express';
-import { JwtAuthGuard } from '../common/guards';
-import { CurrentUser } from '../common/decorators';
 import { ZodValidationPipe } from '../common/pipes';
 import { COOKIE_NAME, EXPIRED_REFRESH_TOKEN, MESSAGES } from '../constants';
+import { envConfig } from '../config';
 import { apiResponse, setCookie } from '../lib';
 import { LoginSchema, RegisterSchema } from './schema';
 import { AuthService } from './auth.service';
 import { RefreshTokenGuard } from './guards';
 import type { FindOrCreateUserDto, LoginDto, RegisterDto } from './auth.types';
-import { envConfig } from 'src/config';
 
 @Controller('auth')
 export class AuthController {
@@ -38,10 +36,21 @@ export class AuthController {
     const { accessToken, refreshToken } = await this.authService.login(body);
     setCookie(COOKIE_NAME.ACCESS_TOKEN, accessToken, res);
     setCookie(COOKIE_NAME.REFRESH_TOKEN, refreshToken, res, {
-      path: '/api/auth/refresh',
       maxAge: EXPIRED_REFRESH_TOKEN,
     });
     return res.status(200).json({ message: MESSAGES.USER_LOGIN_SUCCESS });
+  }
+
+  @Post('logout')
+  @UseGuards(RefreshTokenGuard)
+  async logout(
+    @Req() req: { [COOKIE_NAME.REFRESH_TOKEN]: string },
+    @Res() res: Response,
+  ) {
+    await this.authService.logout(req[COOKIE_NAME.REFRESH_TOKEN]);
+    res.clearCookie(COOKIE_NAME.ACCESS_TOKEN);
+    res.clearCookie(COOKIE_NAME.REFRESH_TOKEN);
+    return res.status(200).json({ message: MESSAGES.USER_LOGOUT_SUCCESS });
   }
 
   @Post('refresh')
@@ -55,19 +64,9 @@ export class AuthController {
     );
     setCookie(COOKIE_NAME.ACCESS_TOKEN, accessToken, res);
     setCookie(COOKIE_NAME.REFRESH_TOKEN, refreshToken, res, {
-      path: '/api/auth/refresh',
       maxAge: EXPIRED_REFRESH_TOKEN,
     });
     return res.status(200).json({ message: MESSAGES.TOKEN_REFRESH_SUCCESS });
-  }
-
-  @Post('logout')
-  @UseGuards(JwtAuthGuard)
-  async logout(@CurrentUser('sub') userId: string, @Res() res: Response) {
-    await this.authService.logout(userId);
-    res.clearCookie(COOKIE_NAME.ACCESS_TOKEN);
-    res.clearCookie(COOKIE_NAME.REFRESH_TOKEN);
-    return res.status(200).json({ message: MESSAGES.USER_LOGOUT_SUCCESS });
   }
 
   @Get('github')

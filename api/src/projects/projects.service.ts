@@ -56,7 +56,7 @@ export class ProjectsService {
   async delete(userId: string, id: string): Promise<void> {
     try {
       await this.prismaService.project.update({
-        where: { userId, id },
+        where: { userId, id, status: 'active' },
         data: {
           expiredAt: new Date(),
           revoked: true,

@@ -21,7 +21,7 @@ POST {{BASE_URL}}/auth/login
 Content-Type: application/json
 
 {
-    "email": "jordan@ex.com",
+    "email": "brijesh@ex.com",
     "password": "jordan1234"
 }
 
@@ -43,7 +43,7 @@ POST {{BASE_URL}}/projects
 Content-Type: application/json
 
 {
-    "name": "SnapURL"
+    "name": "Cloudio"
 }
 
 
@@ -56,7 +56,7 @@ GET {{BASE_URL}}/projects/cmlem5sco0000txcprj3q7ehe
 
 
 ### PATCH - /projects/:id
-PATCH {{BASE_URL}}/projects/cmlem5sco0000txcprj3q7ehe
+PATCH {{BASE_URL}}/projects/cmlxo7ljk0000v4cp538kwal1
 Content-Type: application/json
 
 {
@@ -69,7 +69,7 @@ PATCH {{BASE_URL}}/projects/cmlem5sco0000txcprj3q7ehe/revoke
 
 
 ### DELETE - /projects/:id
-DELETE {{BASE_URL}}/projects/cmlem5sco0000txcprj3q7ehe
+DELETE {{BASE_URL}}/projects/cmlxo7ljk0000v4cp538kwal1
 
 
 ### GET - /images
@@ -77,8 +77,8 @@ GET {{BASE_URL}}/images
 
 
 ### GET - /images/:id
-GET {{BASE_URL}}/images/cmlemm0w8000028cpl01g6abd
+GET {{BASE_URL}}/images/img_fe80877d0e33
 
 
 ### DELETE - /images/:id
-DELETE {{BASE_URL}}/images/cmlemm0w8000028cpl01g6abd
+DELETE {{BASE_URL}}/images/cmlxog75g000258cplhgel9ta

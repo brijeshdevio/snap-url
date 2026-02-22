@@ -81,7 +81,7 @@ export class ImagesService {
   async delete(userId: string, id: string): Promise<void> {
     try {
       await this.prismaService.image.update({
-        where: { id, project: { userId } },
+        where: { id, project: { userId }, deletedAt: null },
         data: { deletedAt: new Date() },
       });
     } catch (error: unknown) {
