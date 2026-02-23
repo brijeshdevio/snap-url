@@ -12,9 +12,14 @@ export const CreateSchema = z
       .max(300, 'Description must be at most 300 characters')
       .optional(),
     expireAt: z
-      .date()
-      .min(new Date(), 'Date must be in the future')
-      .max(new Date('2100-01-01'), 'Date must be before 2100')
-      .optional(),
+      .string()
+      .refine((val) => !isNaN(Date.parse(val)), { message: 'Invalid date' }) // Check if the date is valid
+      .transform((val) => new Date(val)) // Convert to Date object
+      .refine((date) => date >= new Date(), {
+        message: 'Date must be after today',
+      })
+      .refine((date) => date <= new Date(2050, 0, 1), {
+        message: 'Date must be before 2050',
+      }),
   })
   .strict();

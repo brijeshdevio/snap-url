@@ -12,7 +12,7 @@ export const useCreateProjectFacade = () => {
     handleSubmit,
     register,
     formState: { errors },
-  } = useForm<CreateProjectDto>({
+  } = useForm({
     resolver: zodResolver(CreateProjectSchema),
   });
 

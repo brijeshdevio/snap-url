@@ -49,19 +49,23 @@ function Form({ onClose = () => {} }: { onClose: () => void }) {
     useCreateProjectFacade();
 
   if (isSuccess && data?.data) {
-    return (
-      <ViewApiKey onClose={onClose} keyHash={data.data?.project?.keyHash} />
-    );
+    return <ViewApiKey onClose={onClose} keyHash={data.data?.project?.key} />;
   }
 
   return (
-    <form className="mt-2" onSubmit={handleSubmit(submit)}>
+    <form className="mt-2 space-y-3" onSubmit={handleSubmit(submit)}>
       <Input
         label="Display Name"
         placeholder="e.g. My Project"
         autoComplete="off"
         {...register("name")}
         error={errors.name}
+      />
+      <Input
+        label="Expiration"
+        type="date"
+        {...register("expireAt")}
+        error={errors.expireAt}
       />
       <div className="mt-2 flex items-center justify-end gap-x-2">
         <Button
