@@ -34,8 +34,8 @@ function TableRow({
     <tr>
       <td>{name}</td>
       <td className="capitalize">{status}</td>
-      <td>{formatTime(lastUsedAt) || "__"}</td>
-      <td>{formatTime(expiredAt) || "__"}</td>
+      <td>{formatTime(lastUsedAt) || "Never"}</td>
+      <td>{formatTime(expiredAt) || "Never"}</td>
       <td>{usedCount} API Calls</td>
       <td>
         <div className="flex items-center gap-3">
