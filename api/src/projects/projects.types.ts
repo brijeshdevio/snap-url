@@ -17,8 +17,11 @@ export type FindAllResponse = {
   projects: {
     id: string;
     name: string;
+    status: ProjectStatus;
+    usedCount: number;
     createdAt: Date | null;
     expiredAt: Date | null;
+    lastUsedAt: Date | null;
   }[];
 };
 

@@ -53,6 +53,9 @@ export class ProjectsService {
       select: {
         id: true,
         name: true,
+        status: true,
+        lastUsedAt: true,
+        usedCount: true,
         createdAt: true,
         expiredAt: true,
       },
