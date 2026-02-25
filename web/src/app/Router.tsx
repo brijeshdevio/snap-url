@@ -6,15 +6,15 @@ import {
   Routes,
 } from "react-router-dom";
 import { AuthLayout, BaseLayout } from "./Layouts";
-import {
-  Dashboard,
-  Docs,
-  Home,
-  Images,
-  Login,
-  Playground,
-  Register,
-} from "@/pages";
+import React, { Suspense } from "react";
+const Dashboard = React.lazy(() => import("@/pages/Dashboard"));
+const Docs = React.lazy(() => import("@/pages/Docs"));
+const Home = React.lazy(() => import("@/pages/Home"));
+const Images = React.lazy(() => import("@/pages/Images"));
+const Login = React.lazy(() => import("@/pages/Login"));
+const Playground = React.lazy(() => import("@/pages/Playground"));
+const Register = React.lazy(() => import("@/pages/Register"));
+
 import { useAuth } from "@/hooks";
 import { Loader } from "@/components/ui";
 
@@ -36,25 +36,27 @@ function AuthRouter() {
 
 export function Router() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route element={<BaseLayout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/docs" element={<Docs />} />
-          <Route path="/playground" element={<Playground />} />
-          <Route element={<ProtectRouter />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/images" element={<Images />} />
+    <Suspense fallback={<Loader className="h-screen" />}>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<BaseLayout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/docs" element={<Docs />} />
+            <Route path="/playground" element={<Playground />} />
+            <Route element={<ProtectRouter />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/images" element={<Images />} />
+            </Route>
           </Route>
-        </Route>
 
-        <Route element={<AuthLayout />}>
-          <Route element={<AuthRouter />}>
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
+          <Route element={<AuthLayout />}>
+            <Route element={<AuthRouter />}>
+              <Route path="/register" element={<Register />} />
+              <Route path="/login" element={<Login />} />
+            </Route>
           </Route>
-        </Route>
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
+    </Suspense>
   );
 }

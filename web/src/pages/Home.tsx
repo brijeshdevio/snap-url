@@ -140,7 +140,7 @@ function CTA() {
   );
 }
 
-export function Home() {
+export default function Home() {
   return (
     <>
       <Header />

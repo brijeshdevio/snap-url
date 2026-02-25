@@ -1,7 +1,7 @@
 import { Icon } from "@iconify/react";
 import { Link } from "react-router-dom";
 
-export function Docs() {
+export default function Docs() {
   const sections = [
     { id: "overview", label: "Overview", icon: "tabler:info-circle" },
     { id: "getting-started", label: "Getting Started", icon: "tabler:rocket" },

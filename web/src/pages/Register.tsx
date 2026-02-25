@@ -42,7 +42,7 @@ function Form() {
   );
 }
 
-export function Register() {
+export default function Register() {
   return (
     <section className="mx-auto flex w-full flex-col gap-5">
       <div className="text-center">

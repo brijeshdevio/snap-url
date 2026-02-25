@@ -104,7 +104,7 @@ function ImageList() {
   );
 }
 
-export function Images() {
+export default function Images() {
   return (
     <section className="mx-auto max-w-[1000px]">
       <Header />

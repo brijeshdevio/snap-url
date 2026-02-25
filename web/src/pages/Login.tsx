@@ -35,7 +35,7 @@ function Form() {
   );
 }
 
-export function Login() {
+export default function Login() {
   return (
     <section className="mx-auto flex w-full flex-col gap-5">
       <div className="text-center">

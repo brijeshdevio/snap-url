@@ -4,7 +4,7 @@ import axios from "axios";
 import { Button, Input } from "@/components/ui";
 import { notifyError, notifySuccess } from "@/utils";
 
-export function Playground() {
+export default function Playground() {
   const [uploadKey, setUploadKey] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);

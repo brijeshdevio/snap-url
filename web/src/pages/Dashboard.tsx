@@ -132,7 +132,7 @@ function Project() {
   );
 }
 
-export function Dashboard() {
+export default function Dashboard() {
   return (
     <>
       <section className="mx-auto max-w-[1000px]">
