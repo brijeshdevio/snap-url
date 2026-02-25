@@ -5,7 +5,7 @@ export const ImageServices = {
   delete: (imageId: string) =>
     http.delete(`/images/${imageId}`).then((res) => res.data),
   getById: (imageId: string) =>
-    http.get(`/images/${imageId}`).then((res) => res.data),
+    http.get(`/images/${imageId}/meta`).then((res) => res.data),
   download: (signKey: string) =>
     http.get(`/images/download/${signKey}`).then((res) => res.data),
 };

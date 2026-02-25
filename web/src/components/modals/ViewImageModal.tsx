@@ -31,7 +31,7 @@ function ViewImage({
     return <div>{error.message}</div>;
   }
 
-  const imageURL = `${import.meta.env.VITE_API_URL}/images/view/${data?.image?.signKey}`;
+  const imageURL = `${import.meta.env.VITE_API_URL}/images/${data?.image?.key}`;
 
   const handleDelete = () => {
     if (confirm("Are you sure you want to delete this image?")) {
@@ -68,10 +68,6 @@ function ViewImage({
         <div className="flex items-center gap-4">
           <p className="text-base-content/70 w-20 text-sm">Upload Date</p>
           <p className="text-sm">: {formatTime(data?.image?.createdAt)}</p>
-        </div>
-        <div className="flex items-center gap-4">
-          <p className="text-base-content/70 w-20 text-sm">Project</p>
-          <p className="text-sm">: {data?.image?.project?.name}</p>
         </div>
       </div>
       <div className="mt-2 flex items-center gap-x-2">
