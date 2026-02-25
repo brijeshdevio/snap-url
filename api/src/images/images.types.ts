@@ -9,7 +9,6 @@ export type CreateResponse = {
 export type FindAllResponse = {
   images: {
     id: string;
-    key: string;
     name: string;
     size: number;
     mimeType: string;

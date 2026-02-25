@@ -68,7 +68,6 @@ export class ImagesService {
       where: { project: { userId } },
       select: {
         id: true,
-        key: true,
         name: true,
         size: true,
         mimeType: true,
